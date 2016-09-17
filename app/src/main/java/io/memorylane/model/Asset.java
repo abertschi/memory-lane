@@ -5,12 +5,10 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
-import io.realm.annotations.PrimaryKey;
 
 public class Asset extends RealmObject {
 
-    @PrimaryKey
-    private long id;
+    private Long id;
 
     private String path;
 
@@ -33,7 +31,7 @@ public class Asset extends RealmObject {
         this.isPicture = isPicutre;
     }
 
-    public Asset(long id, String path, Date createDate, Boolean isPicture) {
+    public Asset(Long id, String path, Date createDate, Boolean isPicture) {
         this.id = id;
         this.path = path;
         this.file = new File(path);
@@ -65,11 +63,11 @@ public class Asset extends RealmObject {
         this.file = file;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -79,5 +77,31 @@ public class Asset extends RealmObject {
 
     public void setPicutre(Boolean picutre) {
         isPicture = picutre;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Asset asset = (Asset) o;
+
+        if (id != asset.id) return false;
+        if (path != null ? !path.equals(asset.path) : asset.path != null) return false;
+        if (createDate != null ? !createDate.equals(asset.createDate) : asset.createDate != null)
+            return false;
+        if (file != null ? !file.equals(asset.file) : asset.file != null) return false;
+        return isPicture != null ? isPicture.equals(asset.isPicture) : asset.isPicture == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (path != null ? path.hashCode() : 0);
+        result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
+        result = 31 * result + (file != null ? file.hashCode() : 0);
+        result = 31 * result + (isPicture != null ? isPicture.hashCode() : 0);
+        return result;
     }
 }

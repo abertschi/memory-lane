@@ -32,9 +32,10 @@ import io.memorylane.model.Album;
 import io.memorylane.model.AlbumModel;
 import io.memorylane.model.Asset;
 import io.memorylane.view.AlbumAdapter;
-import io.memorylane.view.HideScrollListener;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
+import io.realm.RealmModel;
 
 import static io.memorylane.Utils.getDateCurrentTimeZone;
 import static io.memorylane.Utils.getDateDiff;
@@ -91,10 +92,13 @@ public class AlbumActivity extends AppCompatActivity {
                                         // limit size of initial list
                                         // TODO: remove it
                                         i = i < 150 ? i : 150;
-                                        List<Asset> lastTrip = getImageAssets().subList(0, i);
+
+                                        RealmList<Asset> lastTrip = Utils.deepCopyToRealm(bgRealm, assets.subList(0, i));
+
+                                        album.setAssets(lastTrip);
+
                                         album.setStatDate(lastTrip.get(0).getCreateDate());
                                         album.setEndDate(lastTrip.get(lastTrip.size()-1).getCreateDate());
-                                        album.getAssets().addAll(lastTrip);
                                     }
                                 }, new Realm.Transaction.OnSuccess() {
                                     @Override
