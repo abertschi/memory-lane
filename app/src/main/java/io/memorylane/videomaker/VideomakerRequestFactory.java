@@ -15,7 +15,7 @@ public class VideomakerRequestFactory {
 
     private final static String SECRET = "7JW4XXBGVZBNXLMLRPCN44PTBE";
     private final static String TASK_NAME = "video.create";
-    private final static boolean BLOCK = false;
+    private final static boolean BLOCK = true;
 
     public static VideomakerRequest produce() {
         VideomakerRequest request = new VideomakerRequest();

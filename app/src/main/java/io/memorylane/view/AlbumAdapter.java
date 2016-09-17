@@ -2,6 +2,8 @@ package io.memorylane.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -18,6 +20,7 @@ import io.memorylane.MovieCreatorActivity;
 import io.memorylane.R;
 import io.memorylane.model.Album;
 import io.memorylane.model.AlbumModel;
+import io.realm.Realm;
 
 /**
  * Created by abertschi on 17/09/16.
@@ -26,10 +29,12 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
     private final Activity _mActivity;
     private AlbumModel mModel;
+    private Realm mRealm;
 
     public AlbumAdapter(AlbumModel model, Activity a) {
         mModel = model;
         _mActivity = a;
+        //mRealm = Realm.getDefaultInstance();
     }
 
     @Override
@@ -43,6 +48,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         Album album = mModel.getAlbums().get(position);
         Log.i("TAG", album.getName());
         holder.mLabel.setText(album.getName());
+        holder.mImage.setImageBitmap(getCoverBitmap(album));
     }
 
     @Override
@@ -84,5 +90,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
 
         }
+    }
+
+    private Bitmap getCoverBitmap(Album album) {
+        String coverPath = album.getAssets().get(0).getPath();
+        Bitmap coverBitmap = BitmapFactory.decodeFile(coverPath);
+        return coverBitmap;
     }
 }

@@ -59,6 +59,7 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
 
         ConcurrentHashMap<Asset, String> uploadedAssets = cloud.getUploadedAssets();
 
+
         Log.i("TAG", uploadedAssets.toString());
         return true;
     }

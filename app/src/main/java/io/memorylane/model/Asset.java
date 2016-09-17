@@ -2,15 +2,14 @@ package io.memorylane.model;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Objects;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
-import io.realm.annotations.PrimaryKey;
 
 public class Asset extends RealmObject {
 
-    @PrimaryKey
-    private long id;
+    private Long id;
 
     private String path;
 
@@ -33,7 +32,7 @@ public class Asset extends RealmObject {
         this.isPicture = isPicutre;
     }
 
-    public Asset(long id, String path, Date createDate, Boolean isPicture) {
+    public Asset(Long id, String path, Date createDate, Boolean isPicture) {
         this.id = id;
         this.path = path;
         this.file = new File(path);
@@ -65,11 +64,11 @@ public class Asset extends RealmObject {
         this.file = file;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -79,5 +78,15 @@ public class Asset extends RealmObject {
 
     public void setPicutre(Boolean picutre) {
         isPicture = picutre;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return Objects.equals(path, ((Asset)o).getPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(path);
     }
 }
