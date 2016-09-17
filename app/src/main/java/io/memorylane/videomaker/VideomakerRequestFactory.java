@@ -33,7 +33,7 @@ public class VideomakerRequestFactory {
 
     private static VideomakerTask getTask() {
         VideomakerTask task = new VideomakerTask();
-        task.definition = SxmlFactory.produce(getUrlList());
+        task.definition = SxmlFactory.produce("HackZurich 2016", getUrlList());
         task.task_name = TASK_NAME;
         return task;
     }

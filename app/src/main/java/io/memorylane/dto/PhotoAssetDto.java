@@ -16,6 +16,7 @@ public class PhotoAssetDto extends AssetDto {
                 "   <image filename=\"" + url + "\">\n" +
                 "       <filter type=\"fitAdapter\"></filter>\n" +
                 "   </image>\n" +
+                "   <animator type=\"grow\" growStart=\"-0.3\" growEnd=\"0.0\"/>" +
                 "</overlay>\n";
     }
 }

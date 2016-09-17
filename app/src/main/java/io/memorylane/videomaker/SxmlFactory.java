@@ -11,11 +11,15 @@ import io.memorylane.dto.AssetDto;
  */
 public class SxmlFactory {
 
-    public static String produce(List<AssetDto> dtos) {
+    public static String produce(String title, List<AssetDto> dtos) {
         StringBuilder sb = new StringBuilder();
         sb.append("<movie service=\"craftsman-1.0\">\n");
         sb.append("  <body>\n");
         sb.append("    <sequence>\n");
+
+        sb.append("<text type=\"zone\">");
+        sb.append(title);
+        sb.append("</text>");
 
         for (AssetDto dto : dtos)
             sb.append(dto.getSxml());
