@@ -9,16 +9,19 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.File;
 
+import io.memorylane.database.DatabaseController;
 import io.memorylane.model.Asset;
 
 public class CloudController {
 
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private DatabaseController db;
 
     public CloudController(){
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://hackzurich-cea1b.appspot.com");
+        db = new DatabaseController();
     }
 
     private UploadTask putAsset(String resource, Asset asset){
@@ -39,6 +42,7 @@ public class CloudController {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d("UPLOAD", "Upload successful");
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                db.addURL(downloadUrl);
                 Log.d("UPLOAD", "link: " + downloadUrl);
             }
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {

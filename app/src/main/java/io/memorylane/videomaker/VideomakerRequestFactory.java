@@ -3,6 +3,8 @@ package io.memorylane.videomaker;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.memorylane.database.DatabaseController;
+
 /**
  * Created by annam on 17.09.2016.
  */
@@ -32,6 +34,8 @@ public class VideomakerRequestFactory {
     }
 
     private static List<String> getUrlList() {
+        //DatabaseController db = new DatabaseController();
+        //db.getURL();
         List<String> urls = new ArrayList<>();
         urls.add("http://www.aspca.org/sites/default/files/cat-care_cat-nutrition-tips_overweight_body4_left.jpg");
         urls.add("http://f.tqn.com/y/cats/1/S/6/V/4/cat-deadmouse2081x1446.jpg");
