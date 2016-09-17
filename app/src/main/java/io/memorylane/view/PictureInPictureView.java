@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import io.memorylane.R;
+import timber.log.Timber;
 
 /**
  * Created by abertschi on 17/09/16.
@@ -33,6 +34,8 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
     private int mLastMovableX;
     private int mLastMovableY;
 
+    private ExitCameraGestureListener mExitCameraGestureListener;
+
     private GestureDetector mGestureDector;
 
     private AutoFitTextureView mTextureView1;
@@ -45,6 +48,10 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
     public PictureInPictureView(Context context) {
         super(context);
         initView();
+    }
+
+    public void setOnExitCameraGestureListener(ExitCameraGestureListener l) {
+        mExitCameraGestureListener = l;
     }
 
     public PictureInPictureView(Context context, AttributeSet attrs) {
@@ -73,7 +80,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
 
         mScaleDetector = new ScaleGestureDetector(super.getContext(), new ScaleListener());
         mFrontendView.setOnTouchListener(this);
-
+        mBackgroundView.setOnTouchListener(new ExitCameraGestureDetection());
     }
 
     public AutoFitTextureView[] getTextureViews() {
@@ -240,5 +247,81 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
 
     public interface SwitchPictureInPictureListener {
         void onSwitchPane();
+    }
+
+    public interface ExitCameraGestureListener {
+        class GestureEvent {
+            public GestureEvent(Direction direction) {
+                this.direction = direction;
+            }
+
+            public enum Direction {
+                UP,
+                DOWN
+            }
+
+            private Direction direction;
+
+            public Direction getDirection() {
+                return this.direction;
+            }
+        }
+
+        void onChange(GestureEvent e);
+    }
+
+
+    private class ExitCameraGestureDetection implements OnTouchListener {
+
+        private int mLastTouchX;
+        private int mLastTouchY;
+
+        private int OFFSET = 400;
+
+        private boolean isTouching = false;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            final int touchX = (int) event.getRawX();
+            final int touchY = (int) event.getRawY();
+
+            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    mLastTouchX = touchX;
+                    mLastTouchY = touchY;
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    // moving down
+                    int move = touchY - mLastTouchY;
+
+                    if (move > OFFSET) {
+                        Log.e(TAG, "MOVING DOWN");
+                        if (mExitCameraGestureListener != null) {
+                            ExitCameraGestureListener.GestureEvent e =
+                                    new ExitCameraGestureListener.GestureEvent(ExitCameraGestureListener.GestureEvent.Direction.DOWN);
+                            mExitCameraGestureListener.onChange(e);
+                        }
+                    }
+                    // moving up
+                    else if (-move > OFFSET) {
+                        Log.e(TAG, "MOVING UP");
+                        if (mExitCameraGestureListener != null) {
+                            ExitCameraGestureListener.GestureEvent e =
+                                    new ExitCameraGestureListener.GestureEvent(ExitCameraGestureListener.GestureEvent.Direction.UP);
+                            mExitCameraGestureListener.onChange(e);
+                        }
+                    }
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+
+                    return false;
+                default:
+                    break;
+            }
+            return true;
+        }
     }
 }
