@@ -47,7 +47,7 @@ public class Asset extends RealmObject {
     }
 
     public File getFile() {
-        return file;
+        return new File(path);
     }
 
     public void setFile(File file) {

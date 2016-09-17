@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -11,16 +13,17 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import io.memorylane.cloud.CloudController;
 import io.memorylane.model.Album;
-import io.memorylane.videomaker.SxmlFactory;
+import io.memorylane.model.Asset;
+import io.memorylane.model.AssetsModel;
 import io.memorylane.videomaker.VideomakerApi;
 import io.memorylane.videomaker.VideomakerRequest;
 import io.memorylane.videomaker.VideomakerRequestFactory;
 import io.memorylane.videomaker.VideomakerResponse;
-import io.memorylane.videomaker.VideomakerTask;
+import io.memorylane.view.AssetGridAdapter;
 import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,9 +31,13 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class MovieCreatorActivity extends AppCompatActivity implements Callback<List<VideomakerResponse>> {
 
     Realm mRealm;
+    private RecyclerView mRecycleView;
+    private AssetGridAdapter mGridAdapter;
+    private Album mAlbum;
 
 
     @Override
@@ -42,23 +49,27 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
         mRealm = Realm.getDefaultInstance();
 
         Long albumId = null;
-        Album album;
         if(getIntent().getExtras() != null) {
             albumId = getIntent().getExtras().getLong("AlbumId");
-            album = mRealm.where(Album.class).equalTo("id", albumId).findFirst();
+            mAlbum = mRealm.where(Album.class).equalTo("id", albumId).findFirst();
+            initRecycleView(mAlbum.getAssets());
         }
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
 
+                CloudController cloudController = new CloudController();
+                cloudController.putImage(mAlbum.getAssets().get(0));
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
                 sendRequest();
             }
         });
     }
+
 
     private void sendRequest() {
         Gson gson = new GsonBuilder()
@@ -87,6 +98,15 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
     @Override
     public void onFailure(Call<List<VideomakerResponse>> call, Throwable t) {
         Log.i("failure", String.valueOf(t));
+    }
+
+
+    private void initRecycleView(List<Asset> assets) {
+        mRecycleView = (RecyclerView) findViewById(R.id.assets_grid);
+        mRecycleView.setLayoutManager(new GridLayoutManager(this, 2));
+        AssetsModel model = new AssetsModel(assets);
+        mGridAdapter = new AssetGridAdapter(this, model);
+        mRecycleView.setAdapter(mGridAdapter);
     }
 
 }
