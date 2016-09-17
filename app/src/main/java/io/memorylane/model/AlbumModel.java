@@ -3,10 +3,15 @@ package io.memorylane.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+
 /**
  * Created by abertschi on 17/09/16.
  */
 public class AlbumModel {
+
+    Realm realm = Realm.getDefaultInstance();
 
     private List<Album> mAlbums = new ArrayList<>();
 
@@ -27,9 +32,9 @@ public class AlbumModel {
         return this;
     }
 
-
     public List<Album> getAlbums() {
-        return mAlbums;
+        RealmResults<Album> result = realm.where(Album.class).findAll();
+        return result.subList(0, result.size());
     }
 
     public AlbumModel setAlbums(List<Album> albums) {
