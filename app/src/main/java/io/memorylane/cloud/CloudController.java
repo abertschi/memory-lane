@@ -3,65 +3,59 @@ package io.memorylane.cloud;
 import com.google.firebase.storage.*;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.File;
 
-/**
- * Created by Shodan on 17.09.16.
- */
+import io.memorylane.model.Asset;
+
 public class CloudController {
 
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
-    public CloudController(String s /*hackzurich-cea1b.appspot.com/"*/){
+    public CloudController(){
         storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReferenceFromUrl("gs://"+s);
+        storageRef = storage.getReferenceFromUrl("gs://hackzurich-cea1b.appspot.com");
     }
 
-    public void putImage(String path){
-        Uri file = Uri.fromFile(new File(path));
-        StorageReference riversRef = storageRef.child("images/"+file.getLastPathSegment());
+    private void putAsset(String resource, Asset asset){
+        Uri file = Uri.fromFile(asset.getFile());
+        String fileName = Long.toString(System.currentTimeMillis()) + file.getLastPathSegment();
+
+        StorageReference riversRef = storageRef.child(resource + fileName);
         UploadTask uploadTask = riversRef.putFile(file);
 
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
+            public void onFailure(@NonNull Exception e) {
+                Log.e("UPLOAD", e.getMessage(), e);
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                Log.d("UPLOAD", "Upload successful");
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                Log.d("UPLOAD", "link: " + downloadUrl);
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                Log.d("UPLOAD", "Upload is " + progress + "% done");
             }
         });
     }
 
-    public void putMovie(String path){
-        Uri file = Uri.fromFile(new File(path));
-        StorageReference riversRef = storageRef.child("movies/"+file.getLastPathSegment());
-        UploadTask uploadTask = riversRef.putFile(file);
-
-        // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-            }
-        });
+    public void putImage(Asset asset) {
+        putAsset("images/", asset);
     }
 
-    public void delMedia(){
-
+    public void putMovie(Asset asset){
+        putAsset("movies/", asset);
     }
 
 }

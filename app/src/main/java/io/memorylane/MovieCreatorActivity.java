@@ -11,6 +11,7 @@ import android.view.View;
 
 import java.util.List;
 
+import io.memorylane.cloud.CloudController;
 import io.memorylane.model.Album;
 import io.memorylane.model.Asset;
 import io.memorylane.model.AssetsModel;
@@ -23,6 +24,7 @@ public class MovieCreatorActivity extends AppCompatActivity {
     Realm mRealm;
     private RecyclerView mRecycleView;
     private AssetGridAdapter mGridAdapter;
+    private Album mAlbum;
 
 
     @Override
@@ -34,11 +36,10 @@ public class MovieCreatorActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
 
         Long albumId = null;
-        Album album;
         if(getIntent().getExtras() != null) {
             albumId = getIntent().getExtras().getLong("AlbumId");
-            album = mRealm.where(Album.class).equalTo("id", albumId).findFirst();
-            initRecycleView(album.getAssets());
+            mAlbum = mRealm.where(Album.class).equalTo("id", albumId).findFirst();
+            initRecycleView(mAlbum.getAssets());
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -46,6 +47,9 @@ public class MovieCreatorActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                CloudController cloudController = new CloudController();
+                cloudController.putImage(mAlbum.getAssets().get(0));
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
