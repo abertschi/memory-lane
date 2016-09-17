@@ -12,7 +12,6 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import io.memorylane.R;
-import timber.log.Timber;
 
 /**
  * Created by abertschi on 17/09/16.
@@ -107,7 +106,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
             Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
 
             if (mSwitchPaneListener != null) {
-                mSwitchPaneListener.onSwitchPane();
+                mSwitchPaneListener.onPictureInPictureSwitched();
             }
 
             return true;
@@ -246,7 +245,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
     }
 
     public interface SwitchPictureInPictureListener {
-        void onSwitchPane();
+        void onPictureInPictureSwitched();
     }
 
     public interface ExitCameraGestureListener {

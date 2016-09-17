@@ -26,7 +26,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:paddingTop="?android:attr/actionBarSize"
+        android:layout_marginTop="?android:attr/actionBarSize"
         android:id="@+id/album_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
