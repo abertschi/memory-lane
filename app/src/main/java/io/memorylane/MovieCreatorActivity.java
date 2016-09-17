@@ -12,9 +12,11 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 
 import io.memorylane.cloud.CloudController;
+import io.memorylane.cloud.MemoryLaneAsyncTask;
 import io.memorylane.model.Album;
 import io.memorylane.model.Asset;
 import io.memorylane.model.AssetsModel;
@@ -51,11 +53,9 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
         Long albumId = null;
         if(getIntent().getExtras() != null) {
             albumId = getIntent().getExtras().getLong("AlbumId");
-            mAlbum = mRealm.where(Album.class).equalTo("id", albumId).findFirst();
+            mAlbum = Utils.deepCopy(mRealm.where(Album.class).equalTo("id", albumId).findFirst());
+
             initRecycleView(mAlbum.getAssets());
-            Log.i("GDY OTWIERAM ALBUM", String.valueOf(mAlbum.getAssets().size()));
-            Log.i("GDY OTWIERAM ALBUM", mAlbum.getAssets().get(0).getPath());
-            Log.i("GDY OTWIERAM ALBUM", mAlbum.getAssets().get(10).getPath());
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -63,11 +63,11 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                List<Asset> assets = mAlbum.getAssets().subList(0, 2);
 
-                CloudController cloudController = new CloudController();
-                cloudController.putImage(mAlbum.getAssets().get(0));
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+                Asset[] assetsArray = new Asset[assets.size()];
+                assets.toArray(assetsArray);
+                new MemoryLaneAsyncTask().execute(assetsArray);
 
                 sendVideomakerRequest();
             }

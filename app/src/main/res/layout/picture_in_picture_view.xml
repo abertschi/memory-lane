@@ -15,6 +15,28 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent" />
+        
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:alpha=".5"
+            android:background="#000000"
+            android:padding="30dp"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="90dp"
+                android:id="@+id/record_button"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:src="@mipmap/button"
+                android:background="@android:color/transparent"
+                android:adjustViewBounds="true"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                />
+
+        </FrameLayout>
+
     </FrameLayout>
 
     <FrameLayout

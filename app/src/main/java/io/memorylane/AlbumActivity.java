@@ -25,16 +25,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.memorylane.model.Album;
 import io.memorylane.model.AlbumModel;
 import io.memorylane.model.Asset;
 import io.memorylane.view.AlbumAdapter;
-import io.memorylane.view.HideScrollListener;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
+import io.realm.RealmModel;
 
 import static io.memorylane.Utils.getDateCurrentTimeZone;
 import static io.memorylane.Utils.getDateDiff;
@@ -91,10 +95,13 @@ public class AlbumActivity extends AppCompatActivity {
                                         // limit size of initial list
                                         // TODO: remove it
                                         i = i < 150 ? i : 150;
-                                        List<Asset> lastTrip = getImageAssets().subList(0, i);
+
+                                        RealmList<Asset> lastTrip = Utils.deepCopyToRealm(bgRealm, assets.subList(0, i));
+
+                                        album.setAssets(lastTrip);
+
                                         album.setStatDate(lastTrip.get(0).getCreateDate());
                                         album.setEndDate(lastTrip.get(lastTrip.size()-1).getCreateDate());
-                                        album.getAssets().addAll(lastTrip);
                                     }
                                 }, new Realm.Transaction.OnSuccess() {
                                     @Override
@@ -221,7 +228,7 @@ public class AlbumActivity extends AppCompatActivity {
                 while (cursor.moveToNext()) {
                     Date createDate = getDateCurrentTimeZone(cursor.getLong(addDate));
                     String path = cursor.getString(data);
-                    assets.add(new Asset(path, createDate));
+                    assets.add(new Asset(true, path, createDate));
                 }
             }
         }
@@ -238,11 +245,12 @@ public class AlbumActivity extends AppCompatActivity {
                 while (cursor.moveToNext()) {
                     Date createDate = getDateCurrentTimeZone(cursor.getLong(addDate));
                     String path = cursor.getString(data);
-                    assets.add(new Asset(path, createDate));
+                    assets.add(new Asset(false, path, createDate));
                 }
             }
         }
 
+        assets = removeDuplicates(assets);
 
         Collections.sort(assets, new Comparator<Asset>() {
             @Override
@@ -252,5 +260,12 @@ public class AlbumActivity extends AppCompatActivity {
         });
 
         return assets;
+    }
+
+    private ArrayList<Asset> removeDuplicates(ArrayList<Asset> assets){
+        Set<Asset> s = new LinkedHashSet<>(assets);
+        ArrayList<Asset> list = new ArrayList<>();
+        list.addAll(s);
+        return list;
     }
 }
