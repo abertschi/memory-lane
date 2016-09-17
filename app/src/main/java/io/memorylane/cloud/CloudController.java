@@ -7,21 +7,25 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import java.io.File;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.memorylane.model.Asset;
 
+// Be ware it's stateful
 public class CloudController {
 
     private FirebaseStorage storage;
     private StorageReference storageRef;
+
+    private final ConcurrentHashMap<Asset, String> uploadedAssets = new ConcurrentHashMap<>();
 
     public CloudController(){
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://hackzurich-cea1b.appspot.com");
     }
 
-    private UploadTask putAsset(String resource, Asset asset){
+    private UploadTask putAsset(String resource, final Asset asset){
         Uri file = Uri.fromFile(asset.getFile());
         String fileName = Long.toString(System.currentTimeMillis()) + file.getLastPathSegment();
 
@@ -40,6 +44,9 @@ public class CloudController {
                 Log.d("UPLOAD", "Upload successful");
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 Log.d("UPLOAD", "link: " + downloadUrl);
+                if (downloadUrl != null) {
+                    uploadedAssets.put(asset, downloadUrl.toString());
+                }
             }
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -59,4 +66,7 @@ public class CloudController {
         return putAsset("movies/", asset);
     }
 
+    public ConcurrentHashMap<Asset, String> getUploadedAssets() {
+        return uploadedAssets;
+    }
 }

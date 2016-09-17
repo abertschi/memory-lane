@@ -19,15 +19,26 @@ public class Asset extends RealmObject {
     @Ignore
     private File file;
 
+    private Boolean isPicture;
+
     public Asset() {}
 
     public Asset(File file) {
     }
 
-    public Asset(String path, Date createDate) {
+    public Asset(Boolean isPicutre, String path, Date createDate) {
         this.file = new File(path);
         this.path = this.file.getPath();
         this.createDate = createDate;
+        this.isPicture = isPicutre;
+    }
+
+    public Asset(long id, String path, Date createDate, Boolean isPicture) {
+        this.id = id;
+        this.path = path;
+        this.file = new File(path);
+        this.createDate = createDate;
+        this.isPicture = isPicture;
     }
 
     public Date getCreateDate() {
@@ -60,5 +71,13 @@ public class Asset extends RealmObject {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public Boolean isPicutre() {
+        return isPicture;
+    }
+
+    public void setPicutre(Boolean picutre) {
+        isPicture = picutre;
     }
 }
