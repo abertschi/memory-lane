@@ -1,5 +1,12 @@
 package io.memorylane.view;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Camera;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,8 +15,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.memorylane.CameraActivity;
 import io.memorylane.R;
 import io.memorylane.model.Album;
 import io.memorylane.model.AlbumModel;
@@ -19,10 +28,12 @@ import io.memorylane.model.AlbumModel;
  */
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
 
+    private final Activity _mActivity;
     private AlbumModel mModel;
 
-    public AlbumAdapter(AlbumModel model) {
+    public AlbumAdapter(AlbumModel model, Activity a) {
         mModel = model;
+        _mActivity = a;
     }
 
     @Override
@@ -43,16 +54,24 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         return mModel.getAlbums().size();
     }
 
-    public static class AlbumViewHolder extends RecyclerView.ViewHolder {
+    public class AlbumViewHolder extends RecyclerView.ViewHolder{
 
         private TextView mLabel;
         private ImageView mImage;
 
-        public AlbumViewHolder(View parent) {
+        public AlbumViewHolder(final View parent) {
             super(parent);
             this.setIsRecyclable(false);
             mLabel = (TextView) parent.findViewById(R.id.album_card_text);
             mImage = (ImageView) parent.findViewById(R.id.album_card_image);
+
+            parent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = ActivityOptionsCompat.makeClipRevealAnimation(v, (int) parent.getX(), (int) parent.getY(), 0, 0).toBundle();
+                    ActivityCompat.startActivity(AlbumAdapter.this._mActivity, new Intent(v.getContext(), CameraActivity.class), bundle);
+                }
+            });
         }
     }
 }

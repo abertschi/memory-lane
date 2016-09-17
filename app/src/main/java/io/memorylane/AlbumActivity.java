@@ -1,6 +1,7 @@
 package io.memorylane;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -12,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -78,7 +80,7 @@ public class AlbumActivity extends AppCompatActivity {
         mRecycleView = (RecyclerView) findViewById(R.id.album_recycler_view);
         mRecycleView.setLayoutManager(new LinearLayoutManager(this));
         AlbumModel model = AlbumModel.createData();
-        mAlbumAdapter = new AlbumAdapter(model);
+        mAlbumAdapter = new AlbumAdapter(model, this);
         mRecycleView.setAdapter(mAlbumAdapter);
         mRecycleView.addOnScrollListener(new HideScrollListener() {
             @Override
