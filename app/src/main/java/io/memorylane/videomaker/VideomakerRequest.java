@@ -8,5 +8,6 @@ import java.util.List;
 public class VideomakerRequest {
 
     public String secret;
+    public boolean block;
     public List<VideomakerTask> tasks;
 }
