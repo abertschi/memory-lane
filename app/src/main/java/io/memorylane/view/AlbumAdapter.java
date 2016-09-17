@@ -8,12 +8,17 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
+import java.util.Random;
 
 import io.memorylane.AlbumContentActivity;
 import io.memorylane.MovieCreatorActivity;
@@ -92,8 +97,13 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         }
     }
 
-    private Bitmap getCoverBitmap(Album album) {
-        String coverPath = album.getAssets().get(0).getPath();
+    public Bitmap getCoverBitmap(Album album) {
+        String coverPath = "", extension = "";
+        do {
+            int idx = new Random().nextInt(album.getAssets().size());
+            coverPath = album.getAssets().get(idx).getPath();
+            extension = coverPath.substring(coverPath.lastIndexOf('.') + 1);
+        } while (!"jpg".equals(extension));
         Bitmap coverBitmap = BitmapFactory.decodeFile(coverPath);
         return coverBitmap;
     }
