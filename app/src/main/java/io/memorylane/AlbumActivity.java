@@ -74,6 +74,7 @@ public class AlbumActivity extends AppCompatActivity {
                                         Album album = bgRealm.createObject(Album.class);
 
                                         // add "latest" trip to just created trip
+                                        album.setId(System.nanoTime());
                                         album.setName(input.toString());
 
                                         List<Asset> assets = getImageAssets();
@@ -85,6 +86,7 @@ public class AlbumActivity extends AppCompatActivity {
                                                 break;
                                             }
                                         }
+
                                         // limit size of initial list
                                         // TODO: remove it
                                         i = i < 150 ? i : 150;
