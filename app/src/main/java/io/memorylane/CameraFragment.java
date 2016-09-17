@@ -6,6 +6,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -30,6 +32,8 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -57,6 +61,10 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private AutoFitTextureView mTextureView1;
     private AutoFitTextureView mTextureView2;
 
+
+    private MediaRecorder mMediaRecorder1;
+    private MediaRecorder mMediaRecorder2;
+
     private static String TAG = "VIDEO_FRAGMENT";
 
     private static final String[] VIDEO_PERMISSIONS = {
@@ -80,9 +88,12 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private Integer mSensorOrientation;
     private CameraCaptureSession mPreviewSession2;
     private CaptureRequest.Builder mPreviewBuilder2;
+    private ImageButton mRecordButton;
 
     private boolean _compatibleMode = false;
 
+    private final String RECORDING_TAG_ON = "on";
+    private final String RECORDING_TAG_OFF = "off";
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -104,6 +115,24 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mPictureInPictureView = (PictureInPictureView) view.findViewById(R.id.picture_in_picture);
         mPictureInPictureView.setSwitchPictureInPictureListener(this);
+
+        mRecordButton = (ImageButton) view.findViewById(R.id.record_button);
+        mRecordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mRecordButton.getTag() != RECORDING_TAG_ON) {
+
+                    mRecordButton.setImageResource(R.mipmap.button_rec);
+                    mRecordButton.setTag(RECORDING_TAG_ON);
+                    //mRecordButton.animate().alpha()
+                    //mAddAlbumButton.animate().translationY(mAddAlbumButton.getHeight() * 2);
+
+                } else {
+                    mRecordButton.setImageResource(R.mipmap.button);
+                    mRecordButton.setTag(RECORDING_TAG_OFF);
+                }
+            }
+        });
 
         AutoFitTextureView[] textures = mPictureInPictureView.getTextureViews();
         mTextureView1 = textures[1];
@@ -331,6 +360,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     //mTextureView1.setAspectRatio(mPreviewSize1.getHeight(), mPreviewSize1.getWidth());
                     mTextureView1.setAspectRatio(mTextureView1.getWidth(), mTextureView1.getHeight());
                     configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
+                    mMediaRecorder1 = new MediaRecorder();
                     manager.openCamera(cameraId, mStateCallBackCamera1, null);
 
                     break;
@@ -341,6 +371,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     //mTextureView2.setAspectRatio(mPreviewSize2.getHeight(), mPreviewSize2.getWidth());
                     mTextureView2.setAspectRatio(mTextureView2.getWidth(), mTextureView2.getHeight());
                     configureTransform(mTextureView2.getWidth(), mTextureView2.getHeight(), mTextureView2, mPreviewSize2);
+                    mMediaRecorder2 = new MediaRecorder();
                     manager.openCamera(cameraId, mStateCallBackCamera2, null);
                     break;
                 default:
@@ -615,6 +646,11 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             mCameraDevice1.close();
             mCameraDevice1 = null;
         }
+
+        if (null != mMediaRecorder1) {
+            mMediaRecorder1.release();
+            mMediaRecorder1 = null;
+        }
     }
 
     private void closeCamera2() {
@@ -622,6 +658,11 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         if (null != mCameraDevice2) {
             mCameraDevice2.close();
             mCameraDevice2 = null;
+        }
+
+        if (null != mMediaRecorder2) {
+            mMediaRecorder2.release();
+            mMediaRecorder2 = null;
         }
     }
 
