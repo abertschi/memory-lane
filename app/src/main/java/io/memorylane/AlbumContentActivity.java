@@ -52,6 +52,7 @@ public class AlbumContentActivity extends AppCompatActivity implements PictureIn
     @Override
     public void onChange(GestureEvent e) {
         if (e.getDirection() == GestureEvent.Direction.UP) {
+            //mCameraFragment.closeCameras();
             mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
             mScrollView.scrollTo(0, this.getResources().getDisplayMetrics().heightPixels);
         }

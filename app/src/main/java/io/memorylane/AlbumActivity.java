@@ -45,6 +45,7 @@ import static io.memorylane.Utils.getDateDiff;
 public class AlbumActivity extends AppCompatActivity {
 
     public static final int PERMISSIONS_REQUEST_TO_READ_CONTACTS = 100;
+    public static final int PERMISSIONS_REQUEST_TO_CAMERA = 200;
 
     private RecyclerView mRecycleView;
     private AlbumAdapter mAlbumAdapter;
@@ -140,6 +141,15 @@ public class AlbumActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.INTERNET}, PERMISSIONS_REQUEST_TO_READ_CONTACTS);
         } else {
             getImageAssets();
+
+
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+
+                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                    // TODO: add explanation
+                }
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_TO_CAMERA);
+            }
         }
     }
 
@@ -155,20 +165,20 @@ public class AlbumActivity extends AppCompatActivity {
         mRecycleView.setLayoutManager(new LinearLayoutManager(this));
         mAlbumAdapter = new AlbumAdapter(new AlbumModel(), this);
         mRecycleView.setAdapter(mAlbumAdapter);
-        mRecycleView.addOnScrollListener(new HideScrollListener() {
-            @Override
-            public void onHide() {
-                mAppBarLayout.animate().translationY((float) (-mAppBarLayout.getHeight() * 1.5));
-                mAddAlbumButton.animate().translationY(mAddAlbumButton.getHeight() * 2);
-
-            }
-
-            @Override
-            public void onShow() {
-                mAppBarLayout.animate().translationY(0);
-                mAddAlbumButton.animate().translationY(0);
-            }
-        });
+//        mRecycleView.addOnScrollListener(new HideScrollListener() {
+//            @Override
+//            public void onHide() {
+//                mAppBarLayout.animate().translationY((float) (-mAppBarLayout.getHeight() * 1.5));
+//                mAddAlbumButton.animate().translationY(mAddAlbumButton.getHeight() * 2);
+//
+//            }
+//
+//            @Override
+//            public void onShow() {
+//                mAppBarLayout.animate().translationY(0);
+//                mAddAlbumButton.animate().translationY(0);
+//            }
+//        });
     }
 
     @Override
