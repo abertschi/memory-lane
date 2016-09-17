@@ -5,8 +5,12 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 public class Asset extends RealmObject {
+
+    @PrimaryKey
+    private long id;
 
     private String path;
 
@@ -48,5 +52,13 @@ public class Asset extends RealmObject {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

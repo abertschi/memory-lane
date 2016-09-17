@@ -4,8 +4,11 @@ import java.util.Date;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Album extends RealmObject {
+
+    private Long id;
 
     private String name;
 
@@ -48,5 +51,13 @@ public class Album extends RealmObject {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
