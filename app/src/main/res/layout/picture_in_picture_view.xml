@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent">
 
-        <AutoCompleteTextView
+        <io.memorylane.view.AutoFitTextureView
             android:id="@+id/camera1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -23,7 +23,7 @@
         android:layout_height="250dp"
         android:background="#7C986C">
 
-        <AutoCompleteTextView
+        <io.memorylane.view.AutoFitTextureView
             android:id="@+id/camera2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
