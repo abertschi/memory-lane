@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.List;
 
+import io.memorylane.Utils;
 import io.memorylane.dto.AssetDto;
 
 /**
@@ -18,11 +19,11 @@ public class SxmlFactory {
         sb.append("    <sequence>\n");
 
         sb.append("<text type=\"zone\">");
-        sb.append(title);
+        sb.append(Utils.escapeForXml(title));
         sb.append("</text>");
 
         for (AssetDto dto : dtos)
-            sb.append(dto.getSxml());
+            sb.append(Utils.escapeForXml(dto.getSxml()));
 
         sb.append("    </sequence>\n");
         sb.append("  </body>\n");

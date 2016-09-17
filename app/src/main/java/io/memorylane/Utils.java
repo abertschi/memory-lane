@@ -95,4 +95,12 @@ public class Utils {
 
         return ret;
     }
+
+    public static String escapeForXml(String s) {
+        return s.replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&apos;");
+    }
 }

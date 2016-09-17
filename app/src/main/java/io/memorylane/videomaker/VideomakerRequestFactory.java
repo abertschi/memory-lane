@@ -40,7 +40,7 @@ public class VideomakerRequestFactory {
 
     private static List<AssetDto> getUrlList() {
         List<AssetDto> urls = new ArrayList<>();
-        urls.add(new PhotoAssetDto("http://www.aspca.org/sites/default/files/cat-care_cat-nutrition-tips_overweight_body4_left.jpg"));
+        urls.add(new PhotoAssetDto("https://firebasestorage.googleapis.com/v0/b/hackzurich-cea1b.appspot.com/o/images%2F1474149643717IMG_20160916_220850.jpg?alt=media&token=a01529ce-daf4-4dc6-b055-f49eec0662ee"));
         urls.add(new PhotoAssetDto("http://f.tqn.com/y/cats/1/S/6/V/4/cat-deadmouse2081x1446.jpg"));
         urls.add(new VideoAssetDto("http://s3.amazonaws.com/stupeflix-assets/apiusecase/dive.mov"));
         urls.add(new PhotoAssetDto("https://www.petfinder.com/wp-content/uploads/2012/11/140272627-grooming-needs-senior-cat-632x475.jpg"));
