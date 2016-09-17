@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "656703733073",
+    "firebase_url": "https://hackzurich-cea1b.firebaseio.com",
+    "project_id": "hackzurich-cea1b",
+    "storage_bucket": "hackzurich-cea1b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656703733073:android:a2565f85827cd740",
+        "android_client_info": {
+          "package_name": "io.memorylane"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656703733073-j32ag404397n4trule1ofdm4ucks0fmh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTpHHLX_yN2p3CX4LjrAU4XsTpFMuufpY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
