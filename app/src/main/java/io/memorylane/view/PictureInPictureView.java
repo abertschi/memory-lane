@@ -40,7 +40,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
 
     private boolean _switchView;
 
-    private SwitchPaneListener mSwitchPaneListener;
+    private SwitchPictureInPictureListener mSwitchPaneListener;
 
     public PictureInPictureView(Context context) {
         super(context);
@@ -80,7 +80,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
         return new AutoFitTextureView[]{mTextureView1, mTextureView2};
     }
 
-    public void setSwitchPaneListener(SwitchPaneListener listener) {
+    public void setSwitchPictureInPictureListener(SwitchPictureInPictureListener listener) {
         mSwitchPaneListener = listener;
     }
 
@@ -177,7 +177,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
                         mScaleDirty = false;
                     }
 
-                    view.animate().y(newYPos).x(newXPos).setDuration(300).start();
+                    view.animate().y(newYPos).x(newXPos).setDuration(300).start(); // TODO: should we really auto position at all?
 
                     if (!mScaleDirty) {
                         mLastMovableX = newXPos;
@@ -238,7 +238,7 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
         }
     }
 
-    public interface SwitchPaneListener {
+    public interface SwitchPictureInPictureListener {
         void onSwitchPane();
     }
 }
