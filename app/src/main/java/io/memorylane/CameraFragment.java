@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import io.memorylane.view.AutoFitTextureView;
 import io.memorylane.view.PictureInPictureView;
@@ -100,6 +102,8 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private final String RECORDING_TAG_OFF = "off";
     private String mNextVideoAbsolutePath;
     private Surface mRecorderSurface1;
+
+    private Semaphore mCameraOpenCloseLock1 = new Semaphore(1);
 
 
     @Override
@@ -198,6 +202,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             Log.i(TAG, "StateCallback 1 camera opened");
             mCameraDevice1 = camera;
             startPreview(Camera.CAMERA_1);
+            mCameraOpenCloseLock1.release();
             if (mTextureView1 != null) {
                 //configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
             }
@@ -205,6 +210,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
         @Override
         public void onDisconnected(CameraDevice camera) {
+            mCameraOpenCloseLock1.release();
             if (mCameraDevice1 != null) {
                 mCameraDevice1.close();
                 mCameraDevice1 = null;
@@ -213,6 +219,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
         @Override
         public void onError(CameraDevice camera, int error) {
+            mCameraOpenCloseLock1.release();
             onDisconnected(camera);
             Log.e("LOG", "error camera 1");
             Activity activity = getActivity();
@@ -340,6 +347,17 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private void _openCamera(Camera camera, CameraType cameraType, int width, int height) {
         try {
             CameraManager manager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+
+            Log.d(TAG, "tryAcquire");
+            try {
+                if (!mCameraOpenCloseLock1.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+                    //throw new RuntimeException("Time out waiting to lock camera opening.");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
             String[] cameraIdList = manager.getCameraIdList();
 
             if (cameraIdList.length == 0) {
@@ -348,6 +366,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             for (String s : cameraIdList) {
                 Log.i(TAG, "Camera found: " + s);
             }
+
 
             String cameraId;
             if (cameraType == CameraType.BACK_CAMERA) {
@@ -463,7 +482,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                         public void onConfigureFailed(CameraCaptureSession session) {
                             onPreviewUpdateFailed(session, camera);
                         }
-                    }, mBackgroundHandler2);
+                    }, mBackgroundHandler1);
                     break;
                 default:
                     throw new RuntimeException("Unknown camera");
@@ -644,21 +663,29 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
     }
 
-    private void closeCameras() {
+    public void closeCameras() {
         closeCamera1();
         closeCamera2();
     }
 
     private void closeCamera1() {
-        closePreviewSession1();
-        if (null != mCameraDevice1) {
-            mCameraDevice1.close();
-            mCameraDevice1 = null;
-        }
+        try {
+            mCameraOpenCloseLock1.acquire();
 
-        if (null != mMediaRecorder1) {
-            mMediaRecorder1.release();
-            mMediaRecorder1 = null;
+            closePreviewSession1();
+            if (null != mCameraDevice1) {
+                mCameraDevice1.close();
+                mCameraDevice1 = null;
+            }
+
+            if (null != mMediaRecorder1) {
+                mMediaRecorder1.release();
+                mMediaRecorder1 = null;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            mCameraOpenCloseLock1.release();
         }
     }
 
@@ -687,12 +714,13 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             mNextVideoAbsolutePath = getVideoFilePath(getActivity());
         }
         mMediaRecorder1.setOutputFile(mNextVideoAbsolutePath);
-        mMediaRecorder1.setVideoEncodingBitRate(10000);
+        mMediaRecorder1.setVideoEncodingBitRate(1000000);
         mMediaRecorder1.setVideoFrameRate(30);
         mMediaRecorder1.setVideoSize(mVideoSize1.getWidth(), mVideoSize1.getHeight());
         mMediaRecorder1.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         //mMediaRecorder1.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        mMediaRecorder1.setOrientationHint(rotation);
         try {
             mMediaRecorder1.prepare();
         } catch (IOException e) {
@@ -702,10 +730,10 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     }
 
     private String getVideoFilePath(Context context) {
-        File cameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString());
-        cameraDirectory = new File(cameraDirectory,"memorylane");
+        File cameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString());
+        cameraDirectory = new File(cameraDirectory, "Camera");
         cameraDirectory.mkdirs();
-        return cameraDirectory.toString() + "/memorylane_"
+        return cameraDirectory.toString() + "/memorylane"
                 + System.currentTimeMillis() + ".mp4";
     }
 
@@ -771,14 +799,16 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 //        mIsRecordingVideo = false;
 //        mButtonVideo.setText(R.string.record);
         // Stop recording
-        mMediaRecorder1.stop();
-        mMediaRecorder1.reset();
+        if (mMediaRecorder1 != null) {
 
-        Activity activity = getActivity();
-        if (null != activity) {
-            Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
-                    Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
+            mMediaRecorder1.stop();
+            mMediaRecorder1.reset();
+            Activity activity = getActivity();
+            if (null != activity) {
+                Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
+                        Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
+            }
         }
         mNextVideoAbsolutePath = null;
         startPreview(Camera.CAMERA_1);
