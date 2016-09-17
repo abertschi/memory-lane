@@ -21,7 +21,7 @@ public class CloudController {
         storageRef = storage.getReferenceFromUrl("gs://hackzurich-cea1b.appspot.com");
     }
 
-    private void putAsset(String resource, Asset asset){
+    private UploadTask putAsset(String resource, Asset asset){
         Uri file = Uri.fromFile(asset.getFile());
         String fileName = Long.toString(System.currentTimeMillis()) + file.getLastPathSegment();
 
@@ -48,14 +48,15 @@ public class CloudController {
                 Log.d("UPLOAD", "Upload is " + progress + "% done");
             }
         });
+        return uploadTask;
     }
 
-    public void putImage(Asset asset) {
-        putAsset("images/", asset);
+    public UploadTask putImage(Asset asset) {
+        return putAsset("images/", asset);
     }
 
-    public void putMovie(Asset asset){
-        putAsset("movies/", asset);
+    public UploadTask putMovie(Asset asset){
+        return putAsset("movies/", asset);
     }
 
 }
