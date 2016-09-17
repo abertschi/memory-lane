@@ -10,21 +10,43 @@ public class Asset extends RealmObject {
 
     private String path;
 
+    private Date createDate;
+
     @Ignore
     private File file;
 
     public Asset() {}
 
     public Asset(File file) {
-        this.path = file.getPath();
-        this.file = file;
     }
 
-    public Asset(String file) {
-        this(new File(file));
+    public Asset(String path, Date createDate) {
+        this.file = new File(path);
+        this.path = this.file.getPath();
+        this.createDate = createDate;
     }
 
     public Date getCreateDate() {
-        return new Date(file.lastModified());
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 }
