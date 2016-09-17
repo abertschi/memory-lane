@@ -25,7 +25,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.memorylane.model.Album;
@@ -247,6 +250,7 @@ public class AlbumActivity extends AppCompatActivity {
             }
         }
 
+        assets = removeDuplicates(assets);
 
         Collections.sort(assets, new Comparator<Asset>() {
             @Override
@@ -256,5 +260,12 @@ public class AlbumActivity extends AppCompatActivity {
         });
 
         return assets;
+    }
+
+    private ArrayList<Asset> removeDuplicates(ArrayList<Asset> assets){
+        Set<Asset> s = new LinkedHashSet<>(assets);
+        ArrayList<Asset> list = new ArrayList<>();
+        list.addAll(s);
+        return list;
     }
 }
