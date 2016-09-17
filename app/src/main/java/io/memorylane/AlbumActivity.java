@@ -137,7 +137,7 @@ public class AlbumActivity extends AppCompatActivity {
                 // TODO: add explanation
             }
 
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_TO_READ_CONTACTS);
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.INTERNET}, PERMISSIONS_REQUEST_TO_READ_CONTACTS);
         } else {
             getImageAssets();
         }
