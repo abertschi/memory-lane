@@ -2,7 +2,6 @@ package io.memorylane;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +22,7 @@ import io.memorylane.videomaker.VideomakerApi;
 import io.memorylane.videomaker.VideomakerRequest;
 import io.memorylane.videomaker.VideomakerRequestFactory;
 import io.memorylane.videomaker.VideomakerResponse;
+import io.memorylane.videomaker.VideomakerResponseResult;
 import io.memorylane.view.AssetGridAdapter;
 import io.realm.Realm;
 import retrofit2.Call;
@@ -53,6 +53,9 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
             albumId = getIntent().getExtras().getLong("AlbumId");
             mAlbum = mRealm.where(Album.class).equalTo("id", albumId).findFirst();
             initRecycleView(mAlbum.getAssets());
+            Log.i("GDY OTWIERAM ALBUM", String.valueOf(mAlbum.getAssets().size()));
+            Log.i("GDY OTWIERAM ALBUM", mAlbum.getAssets().get(0).getPath());
+            Log.i("GDY OTWIERAM ALBUM", mAlbum.getAssets().get(10).getPath());
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -63,15 +66,16 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
 
                 CloudController cloudController = new CloudController();
                 cloudController.putImage(mAlbum.getAssets().get(0));
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                sendRequest();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+
+                sendVideomakerRequest();
             }
         });
     }
 
 
-    private void sendRequest() {
+    private void sendVideomakerRequest() {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
                 .create();
@@ -92,7 +96,13 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
 
     @Override
     public void onResponse(Call<List<VideomakerResponse>> call, Response<List<VideomakerResponse>> response) {
-        Log.i("response ok", response.body().toString());
+        Log.i("response ok", "");
+
+        VideomakerResponseResult result = response.body().get(0).result;
+        Log.i("video url", result.export);
+        Log.i("video preview url", result.preview);
+        Log.i("video thumbnail url", result.thumbnail);
+        Log.i("video duration", String.valueOf(result.duration));
     }
 
     @Override
