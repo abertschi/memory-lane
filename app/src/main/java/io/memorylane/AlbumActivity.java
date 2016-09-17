@@ -221,7 +221,7 @@ public class AlbumActivity extends AppCompatActivity {
                 while (cursor.moveToNext()) {
                     Date createDate = getDateCurrentTimeZone(cursor.getLong(addDate));
                     String path = cursor.getString(data);
-                    assets.add(new Asset(path, createDate));
+                    assets.add(new Asset(true, path, createDate));
                 }
             }
         }
@@ -238,7 +238,7 @@ public class AlbumActivity extends AppCompatActivity {
                 while (cursor.moveToNext()) {
                     Date createDate = getDateCurrentTimeZone(cursor.getLong(addDate));
                     String path = cursor.getString(data);
-                    assets.add(new Asset(path, createDate));
+                    assets.add(new Asset(false, path, createDate));
                 }
             }
         }
