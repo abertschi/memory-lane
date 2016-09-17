@@ -5,10 +5,16 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 public class Asset extends RealmObject {
 
+    @PrimaryKey
+    private long id;
+
     private String path;
+
+    private Date createDate;
 
     @Ignore
     private File file;
@@ -16,15 +22,43 @@ public class Asset extends RealmObject {
     public Asset() {}
 
     public Asset(File file) {
-        this.path = file.getPath();
-        this.file = file;
     }
 
-    public Asset(String file) {
-        this(new File(file));
+    public Asset(String path, Date createDate) {
+        this.file = new File(path);
+        this.path = this.file.getPath();
+        this.createDate = createDate;
     }
 
     public Date getCreateDate() {
-        return new Date(file.lastModified());
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

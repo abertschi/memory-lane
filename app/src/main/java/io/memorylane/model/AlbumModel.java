@@ -11,21 +11,7 @@ import io.realm.RealmResults;
  */
 public class AlbumModel {
 
-    Realm realm = Realm.getDefaultInstance();
-
     private List<Album> mAlbums = new ArrayList<>();
-
-
-    public static AlbumModel createData() {
-        AlbumModel m = new AlbumModel();
-        Album a = new Album().setName("Trip to Zurich");
-        m.addAlbum(a);
-        a = new Album().setName("Trip to Bern");
-        m.addAlbum(a);
-        a = new Album().setName("Trip to Poland");
-        m.addAlbum(a);
-        return m;
-    }
 
     public AlbumModel addAlbum(Album a) {
         this.mAlbums.add(a);
@@ -33,7 +19,7 @@ public class AlbumModel {
     }
 
     public List<Album> getAlbums() {
-        RealmResults<Album> result = realm.where(Album.class).findAll();
+        RealmResults<Album> result = Realm.getDefaultInstance().where(Album.class).findAll();
         return result.subList(0, result.size());
     }
 

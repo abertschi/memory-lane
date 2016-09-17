@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import io.memorylane.AlbumContentActivity;
+import io.memorylane.MovieCreatorActivity;
 import io.memorylane.R;
 import io.memorylane.model.Album;
 import io.memorylane.model.AlbumModel;
@@ -67,6 +68,21 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
                     ActivityCompat.startActivity(AlbumAdapter.this._mActivity, new Intent(v.getContext(), AlbumContentActivity.class), bundle);
                 }
             });
+
+            parent.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Bundle bundle = ActivityOptionsCompat.makeClipRevealAnimation(v, (int) parent.getX(), (int) parent.getY(), 0, 0).toBundle();
+
+                    Intent intent = new Intent(v.getContext(), MovieCreatorActivity.class);
+                    Long id = mModel.getAlbums().get(getAdapterPosition()).getId();
+                    intent.putExtra("AlbumId", id);
+                    ActivityCompat.startActivity(AlbumAdapter.this._mActivity, intent, bundle);
+                    return true;
+                }
+            });
+
+
         }
     }
 }
