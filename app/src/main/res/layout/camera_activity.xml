@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:id="@+id/camera_fragment"
+    android:background="@color/cardview_dark_background"
+    android:layout_height="500dp">
 
+    <!--<io.memorylane.view.PictureInPictureView-->
+        <!--android:id="@+id/picture_in_picture"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
-    <io.memorylane.view.PictureInPictureView
-        android:id="@+id/picture_in_picture"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </io.memorylane.view.PictureInPictureView>
+    <!--</io.memorylane.view.PictureInPictureView>-->
 
 </FrameLayout>
