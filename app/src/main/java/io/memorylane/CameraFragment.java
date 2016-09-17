@@ -730,10 +730,10 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     }
 
     private String getVideoFilePath(Context context) {
-        File cameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString());
-        cameraDirectory = new File(cameraDirectory, "memorylane");
+        File cameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString());
+        cameraDirectory = new File(cameraDirectory, "Camera");
         cameraDirectory.mkdirs();
-        return cameraDirectory.toString() + "/memorylane_"
+        return cameraDirectory.toString() + "/memorylane"
                 + System.currentTimeMillis() + ".mp4";
     }
 
@@ -799,14 +799,16 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 //        mIsRecordingVideo = false;
 //        mButtonVideo.setText(R.string.record);
         // Stop recording
-        mMediaRecorder1.stop();
-        mMediaRecorder1.reset();
+        if (mMediaRecorder1 != null) {
 
-        Activity activity = getActivity();
-        if (null != activity) {
-            Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
-                    Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
+            mMediaRecorder1.stop();
+            mMediaRecorder1.reset();
+            Activity activity = getActivity();
+            if (null != activity) {
+                Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
+                        Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
+            }
         }
         mNextVideoAbsolutePath = null;
         startPreview(Camera.CAMERA_1);
