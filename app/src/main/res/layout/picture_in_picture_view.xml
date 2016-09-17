@@ -27,7 +27,7 @@
             android:id="@+id/camera2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#7C986C" />
+            android:background="@android:color/transparent" />
 
     </FrameLayout>
 

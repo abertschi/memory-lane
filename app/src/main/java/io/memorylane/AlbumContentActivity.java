@@ -23,8 +23,11 @@ public class AlbumContentActivity extends AppCompatActivity implements PictureIn
     private CameraFragment mCameraFragment;
     private CustomScrollView mScrollView;
 
+    static AlbumContentActivity _instance;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        _instance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_content_activity);
 
@@ -39,8 +42,19 @@ public class AlbumContentActivity extends AppCompatActivity implements PictureIn
         t.add(R.id.container_2, mBrowseFragment, "browse");
 
         t.commit();
-
     }
+
+    private void _hackReset() {
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(mBrowseFragment);
+        ft.attach(mBrowseFragment);
+        ft.commit();
+    }
+
+    public static void hackReset() {
+        _instance._hackReset();
+    }
+
 
     @Override
     protected void onResume() {

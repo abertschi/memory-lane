@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Matrix;
-import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -17,6 +15,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import io.memorylane.view.AutoFitTextureView;
 import io.memorylane.view.PictureInPictureView;
@@ -82,6 +80,8 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private Integer mSensorOrientation;
     private CameraCaptureSession mPreviewSession2;
     private CaptureRequest.Builder mPreviewBuilder2;
+
+    private boolean _compatibleMode = false;
 
 
     @Override
@@ -136,6 +136,10 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         openCamera2(mTextureView2.getHeight(), mTextureView2.getWidth());
     }
 
+    private void resetCameras() {
+        AlbumContentActivity.hackReset();
+    }
+
     private enum Camera {
         CAMERA_1,
         CAMERA_2;
@@ -149,11 +153,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private boolean _mCameraScreenConfiguration = true;
 
 
-    private Semaphore mCameraOpenCloseLock1 = new Semaphore(1);
-
-    private Semaphore mCameraOpenCloseLock2 = new Semaphore(1);
-
-
     private CameraDevice.StateCallback mStateCallBackCamera1 = new CameraDevice.StateCallback() {
 
         @Override
@@ -161,8 +160,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             Log.i(TAG, "StateCallback 1 camera opened");
             mCameraDevice1 = camera;
             startPreview(Camera.CAMERA_1);
-            mCameraOpenCloseLock1.release();
-
             if (mTextureView1 != null) {
                 //configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
             }
@@ -170,14 +167,16 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
         @Override
         public void onDisconnected(CameraDevice camera) {
-            mCameraDevice1.close();
-            mCameraDevice1 = null;
-            mCameraOpenCloseLock1.release();
+            if (mCameraDevice1 != null) {
+                mCameraDevice1.close();
+                mCameraDevice1 = null;
+            }
         }
 
         @Override
         public void onError(CameraDevice camera, int error) {
             onDisconnected(camera);
+            Log.e("LOG", "error camera 1");
             Activity activity = getActivity();
             if (activity != null) {
                 activity.finish();
@@ -206,10 +205,12 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         @Override
         public void onError(CameraDevice camera, int error) {
             onDisconnected(camera);
+            Log.e("LOG", "error camera 2");
             Activity activity = getActivity();
             if (activity != null) {
                 activity.finish();
             }
+
         }
     };
 
@@ -262,13 +263,14 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
     @Override
     public void onResume() {
+        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this.getActivity(), VIDEO_PERMISSIONS, REQUEST_VIDEO_PERMISSIONS);
+        }
+
         super.onResume();
         startBackgroundThread();
-
-        //openCamera1(mTextureView1.getWidth(), mTextureView1.getWidth());
-        //mTextureView1.setSurfaceTextureListener(mSurfaceTexture1Listener);
+        mTextureView1.setSurfaceTextureListener(mSurfaceTexture1Listener);
         mTextureView2.setSurfaceTextureListener(mSurfaceTexture2Listener);
-
     }
 
     @Override
@@ -286,21 +288,18 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         return _mCameraScreenConfiguration ? CameraType.BACK_CAMERA : CameraType.FRONT_CAMERA;
     }
 
-    private void openCamera1(int width, int height) {
-        _openCamera(Camera.CAMERA_1, getConfiguredBackCamera(), width, height);
+    private void openCamera1(final int width, final int height) {
+        if (Build.MODEL.equals("LG-D855")) {
+            _openCamera(Camera.CAMERA_1, getConfiguredBackCamera(), width, height);
+        }
     }
 
     private void openCamera2(int width, int height) {
+        Log.i("TAG", "RUN CAMERA2 now");
         _openCamera(Camera.CAMERA_2, getConfiguredFrontCamera(), width, height);
     }
 
     private void _openCamera(Camera camera, CameraType cameraType, int width, int height) {
-        ActivityCompat.requestPermissions(this.getActivity(), VIDEO_PERMISSIONS, REQUEST_VIDEO_PERMISSIONS);
-
-        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
         try {
             CameraManager manager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
             String[] cameraIdList = manager.getCameraIdList();
@@ -326,21 +325,21 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             switch (camera) {
                 case CAMERA_1: // front camera
-//                    mVideoSize1 = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
-//                    mPreviewSize1 = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), height, width, mVideoSize1);
-//                    mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-//                    mTextureView1.setAspectRatio(mPreviewSize1.getHeight(), mPreviewSize1.getWidth());
-//                    mTextureView1.setAspectRatio(mTextureView1.getWidth(), mTextureView1.getHeight());
-//                    configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
-//                    manager.openCamera(cameraId, mStateCallBackCamera1, null);
+                    mVideoSize1 = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
+                    mPreviewSize1 = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), height, width, mVideoSize1);
+                    mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+                    //mTextureView1.setAspectRatio(mPreviewSize1.getHeight(), mPreviewSize1.getWidth());
+                    mTextureView1.setAspectRatio(mTextureView1.getWidth(), mTextureView1.getHeight());
+                    configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
+                    manager.openCamera(cameraId, mStateCallBackCamera1, null);
 
                     break;
                 case CAMERA_2:
                     mVideoSize2 = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
                     mPreviewSize2 = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), height, width, mVideoSize2);
                     mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-                    mTextureView2.setAspectRatio(mPreviewSize2.getHeight(), mPreviewSize2.getWidth());
-                    //mTextureView2.setAspectRatio(mTextureView2.getWidth(), mTextureView2.getHeight());
+                    //mTextureView2.setAspectRatio(mPreviewSize2.getHeight(), mPreviewSize2.getWidth());
+                    mTextureView2.setAspectRatio(mTextureView2.getWidth(), mTextureView2.getHeight());
                     configureTransform(mTextureView2.getWidth(), mTextureView2.getHeight(), mTextureView2, mPreviewSize2);
                     manager.openCamera(cameraId, mStateCallBackCamera2, null);
                     break;
@@ -379,7 +378,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     closePreviewSession1();
                     SurfaceTexture textureCamera1 = mTextureView1.getSurfaceTexture();
                     textureCamera1.setDefaultBufferSize(mTextureView1.getHeight(), mTextureView1.getWidth());
-                    mPreviewBuilder1 = mCameraDevice1.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                    mPreviewBuilder1 = mCameraDevice1.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
                     mTextureView1.setAspectRatio(mPreviewSize1.getHeight(), mPreviewSize1.getWidth());
                     mTextureView1.updateViewSize(mTextureView1.getHeight(), mTextureView1.getWidth());
 
@@ -407,7 +406,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
                     SurfaceTexture textureCamera2 = mTextureView2.getSurfaceTexture();
                     textureCamera2.setDefaultBufferSize(mTextureView2.getWidth(), mTextureView2.getHeight());
-                    mPreviewBuilder2 = mCameraDevice2.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                    mPreviewBuilder2 = mCameraDevice2.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
                     //mTextureView2.setAspectRatio(mPreviewSize2.getHeight(), mPreviewSize2.getWidth());
                     //mTextureView2.updateViewSize(mTextureView2.getHeight(), mTextureView2.getWidth());
 
@@ -625,6 +624,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             mCameraDevice2 = null;
         }
     }
+
 }
 
 
