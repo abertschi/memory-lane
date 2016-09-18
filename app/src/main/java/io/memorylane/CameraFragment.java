@@ -102,6 +102,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private Surface mRecorderSurface1;
 
     private Semaphore mCameraOpenCloseLock1 = new Semaphore(1);
+    private Surface mRecorderSurface2;
 
 
     @Override
@@ -134,7 +135,9 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     mRecordButton.setImageResource(R.mipmap.button_rec);
                     mRecordButton.setTag(RECORDING_TAG_ON);
                     startRecordingVideo();
+                    startRecordingVideo2();
                 } else {
+                    stopRecordingVideo1();
                     stopRecordingVideo1();
                     mRecordButton.setImageResource(R.mipmap.button);
                     mRecordButton.setTag(RECORDING_TAG_OFF);
@@ -624,6 +627,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     }
 
     public void closeCameras() {
+        mCameraOpenCloseLock1.tryAcquire(2500);
         closeCamera1();
         closeCamera2();
     }
@@ -681,6 +685,33 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         mMediaRecorder1.setOrientationHint(rotation);
         try {
             mMediaRecorder1.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Problems recording video with mediarecorder 1");
+        }
+    }
+
+    private void setUpMediaRecorder2() {
+        final Activity activity = getActivity();
+        if (null == activity) {
+            return;
+        }
+        //mMediaRecorder1.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mMediaRecorder2.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        mMediaRecorder2.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        if (mNextVideoAbsolutePath == null || mNextVideoAbsolutePath.isEmpty()) {
+            mNextVideoAbsolutePath = getVideoFilePath(getActivity());
+        }
+        mMediaRecorder2.setOutputFile(mNextVideoAbsolutePath);
+        mMediaRecorder2.setVideoEncodingBitRate(1000000);
+        mMediaRecorder2.setVideoFrameRate(30);
+        mMediaRecorder2.setVideoSize(mVideoSize2.getWidth(), mVideoSize2.getHeight());
+        mMediaRecorder2.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        //mMediaRecorder1.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        mMediaRecorder2.setOrientationHint(rotation);
+        try {
+            mMediaRecorder2.prepare();
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Problems recording video with mediarecorder 1");
@@ -752,6 +783,63 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         }
     }
 
+    private void startRecordingVideo2() {
+        if (null == mCameraDevice2 || !mTextureView2.isAvailable() || null == mPreviewSize2) {
+            return;
+        }
+        try {
+            closePreviewSession2();
+            setUpMediaRecorder2();
+            SurfaceTexture texture = mTextureView2.getSurfaceTexture();
+            assert texture != null;
+            texture.setDefaultBufferSize(mPreviewSize2.getWidth(), mPreviewSize2.getHeight());
+            mPreviewBuilder2 = mCameraDevice2.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+            List<Surface> surfaces = new ArrayList<>();
+
+            // Set up Surface for the camera preview
+            Surface previewSurface = new Surface(texture);
+            surfaces.add(previewSurface);
+            mPreviewBuilder2.addTarget(previewSurface);
+
+            // Set up Surface for the MediaRecorder
+            mRecorderSurface2 = mMediaRecorder2.getSurface();
+            surfaces.add(mRecorderSurface2);
+            mPreviewBuilder2.addTarget(mRecorderSurface2);
+
+            // Start a capture session
+            // Once the session starts, we can update the UI and start recording
+            mCameraDevice2.createCaptureSession(surfaces, new CameraCaptureSession.StateCallback() {
+
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    mPreviewSession2 = cameraCaptureSession;
+                    updatePreview(Camera.CAMERA_2);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+//                            // UI
+//                            mButtonVideo.setText(R.string.stop);
+//                            mIsRecordingVideo = true;
+
+                            // Start recording
+                            mMediaRecorder2.start();
+                        }
+                    });
+                }
+
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    Activity activity = getActivity();
+                    if (null != activity) {
+                        Toast.makeText(activity, "Failed", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }, mBackgroundHandler1);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void stopRecordingVideo1() {
         // UI
 //        mIsRecordingVideo = false;
@@ -768,9 +856,26 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                 Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
             }
         }
+
+
+        if (mMediaRecorder2 != null) {
+
+            mMediaRecorder2.stop();
+            mMediaRecorder2.reset();
+            Activity activity = getActivity();
+            if (null != activity) {
+                Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
+                        Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
+            }
+        }
+
         mNextVideoAbsolutePath = null;
-        startPreview(Camera.CAMERA_1);
+        closeCameras();
+        //startCameras();
     }
+
+
 }
 
 
