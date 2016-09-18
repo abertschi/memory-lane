@@ -1,9 +1,10 @@
-# hackzurich memory-lane
+# memory-lane 🎬
 
 Video is the way to tell stories in this world.
 Capture life stories with MemoryLane and share them with friends.
 No efforts, no time consuming video post production. MemoryLane does the heavy lifting for you.
 
+This project was developed at hackzurich2016. It is still under development
 
 ![memorylane](https://raw.githubusercontent.com/abertschi/memory-lane/master/memorylane.png)
 
