@@ -22,6 +22,8 @@ public class Asset extends RealmObject {
 
     private Boolean isEnded;
 
+    private String uploadedFile;
+
     public Asset() {}
 
     public Asset(File file) {
@@ -78,6 +80,14 @@ public class Asset extends RealmObject {
 
     public void setPicutre(Boolean picutre) {
         isPicture = picutre;
+    }
+
+    public String getUploadedFile() {
+        return uploadedFile;
+    }
+
+    public void setUploadedFile(String uploadedFile) {
+        this.uploadedFile = uploadedFile;
     }
 
     @Override

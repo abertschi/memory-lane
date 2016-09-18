@@ -37,6 +37,7 @@ import io.memorylane.videomaker.VideomakerRequestFactory;
 import io.memorylane.videomaker.VideomakerResponse;
 import io.memorylane.videomaker.VideomakerResponseResult;
 import io.memorylane.videomaker.VideomakerTask;
+import io.realm.Realm;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -49,7 +50,6 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
 
     public Activity activity;
     public ProgressDialog dialog;
-
 
     public MemoryLaneAsyncTask(Activity activity) {
         super();
@@ -66,15 +66,20 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Asset... assets) {
+        ConcurrentHashMap<Asset, String> uploadedAssets = new ConcurrentHashMap<>();
 
         List<UploadTask> uploadTasks = new ArrayList<>();
 
         for (Asset asset : assets) {
 
-            if (asset.isPicutre()) {
-                uploadTasks.add(cloud.putImage(asset));
+            if(asset.getUploadedFile() == null) {
+                if (asset.isPicutre()) {
+                    uploadTasks.add(cloud.putImage(asset));
+                } else {
+                    uploadTasks.add(cloud.putMovie(asset));
+                }
             } else {
-                uploadTasks.add(cloud.putMovie(asset));
+                uploadedAssets.put(asset, asset.getUploadedFile());
             }
         }
 
@@ -87,7 +92,9 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
             Log.e("ERROR", e.getMessage(), e);
         }
 
-        ConcurrentHashMap<Asset, String> uploadedAssets = cloud.getUploadedAssets();
+        uploadedAssets.putAll(cloud.getUploadedAssets());
+
+        updatePaths(uploadedAssets);
 
         VideomakerResponseResult result = createVideo(uploadedAssets);
 
@@ -95,6 +102,18 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
         Log.i("TAG", Objects.toString(uploadedAssets));
         Log.i("TAG", Objects.toString(result));
         return true;
+    }
+
+    private void updatePaths(ConcurrentHashMap<Asset, String> uploadedAssets) {
+        Realm realm = Realm.getDefaultInstance();
+        for (Map.Entry<Asset, String> entry : uploadedAssets.entrySet()) {
+            realm.beginTransaction();
+            Asset asset = realm.where(Asset.class).equalTo("id", entry.getKey().getId()).findFirst();
+            if(asset != null){
+                asset.setUploadedFile(entry.getValue());
+            }
+            realm.commitTransaction();
+        }
     }
 
     protected VideomakerResponseResult createVideo(ConcurrentHashMap<Asset, String> uploadedAssets) {

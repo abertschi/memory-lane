@@ -38,8 +38,10 @@ public class Utils {
     }
 
     public static Asset deepCopyAsset (Asset originalAsset) {
-        return new Asset(originalAsset.getId(), originalAsset.getPath(), originalAsset.getCreateDate(),
+        Asset asset = new Asset(originalAsset.getId(), originalAsset.getPath(), originalAsset.getCreateDate(),
                 originalAsset.isPicutre());
+        asset.setUploadedFile(originalAsset.getUploadedFile());
+        return asset;
     }
 
     public static Album deepCopy(final Album originalAlbum) {
@@ -66,6 +68,7 @@ public class Utils {
         ret.setPath(originalAsset.getPath());
         ret.setCreateDate(originalAsset.getCreateDate());
         ret.setPicutre(originalAsset.isPicutre());
+        ret.setUploadedFile(originalAsset.getUploadedFile());
         return ret;
     }
 
