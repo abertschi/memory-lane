@@ -269,7 +269,6 @@ public class PictureInPictureView extends RelativeLayout implements View.OnTouch
         void onChange(GestureEvent e);
     }
 
-
     private class ExitCameraGestureDetection implements OnTouchListener {
 
         private int mLastTouchX;

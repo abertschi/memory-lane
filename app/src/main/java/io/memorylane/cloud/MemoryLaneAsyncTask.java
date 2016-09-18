@@ -61,7 +61,7 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         cloud = new CloudController();
-        this.dialog.setMessage("Processing your data");
+        this.dialog.setMessage("I'll be hack");
         this.dialog.show();
     }
 

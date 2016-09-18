@@ -3,6 +3,8 @@ package io.memorylane;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -89,6 +91,19 @@ public class MovieCreatorActivity extends AppCompatActivity {
             }
         });
 
+        FloatingActionButton up = (FloatingActionButton) findViewById(R.id.back_to_camera);
+        up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityCompat.startActivity(MovieCreatorActivity.this, new Intent(v.getContext(), AlbumContentActivity.class), null);
+
+            }
+        });
+
+        Random randomizer = new Random();
+        Glide.with(this)
+                .load(mAlbum.getAssets().get(randomizer.nextInt(mAlbum.getAssets().size())).getPath())
+                .into(mView);
         if(mAlbum.getAssets().size() > 0) {
             Random randomizer = new Random();
             Glide.with(this)
@@ -96,6 +111,7 @@ public class MovieCreatorActivity extends AppCompatActivity {
                     .into(mView);
         }
     }
+
 
     private void initRecycleView(List<Asset> assets) {
         mRecycleView = (RecyclerView) findViewById(R.id.assets_grid);

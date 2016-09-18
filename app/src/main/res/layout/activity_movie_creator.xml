@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -49,44 +49,43 @@
 
 
                 <!--<FrameLayout-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_marginLeft="20dp"-->
-                    <!--android:layout_marginTop="50dp"-->
-                    <!--android:layout_gravity="top|center_vertical"-->
-                    <!--android:background="#000000">-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="20dp"-->
+                <!--android:layout_marginTop="50dp"-->
+                <!--android:layout_gravity="top|center_vertical"-->
+                <!--android:background="#000000">-->
 
-                    <!--<TextView-->
-                        <!--android:id="@+id/album_card_text"-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:layout_gravity="center_horizontal|center_vertical"-->
-                        <!--android:paddingTop="3dp"-->
-                        <!--android:paddingBottom="3dp"-->
-                        <!--android:paddingLeft="3dp"-->
-                        <!--android:paddingRight="3dp"-->
-                        <!--style="@android:style/TextAppearance.DeviceDefault.Medium"-->
-                        <!--android:text="Number of assets: 30"-->
-                        <!--android:textColor="#FFFFFF" />-->
+                <!--<TextView-->
+                <!--android:id="@+id/album_card_text"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal|center_vertical"-->
+                <!--android:paddingTop="3dp"-->
+                <!--android:paddingBottom="3dp"-->
+                <!--android:paddingLeft="3dp"-->
+                <!--android:paddingRight="3dp"-->
+                <!--style="@android:style/TextAppearance.DeviceDefault.Medium"-->
+                <!--android:text="Number of assets: 30"-->
+                <!--android:textColor="#FFFFFF" />-->
 
                 <!--</FrameLayout>-->
-
 
 
                 <android.support.v7.widget.Toolbar
                     android:id="@+id/main.toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:layout_collapseMode="pin"
                     android:title="My trip of zurich"
+                    app:layout_collapseMode="pin"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
 
         <android.support.v4.widget.NestedScrollView
-            android:layout_width="match_parent"
             android:id="@+id/nestedScrollViewAssets"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -97,22 +96,42 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/assets_grid"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    />
+                    android:layout_height="match_parent" />
 
             </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>
 
-        <android.support.design.widget.FloatingActionButton
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:src="@mipmap/play"
+            android:orientation="horizontal"
             app:layout_anchor="@id/main.appbar"
-            android:id="@+id/fab"
-            android:visibility="visible"
-            app:layout_anchorGravity="bottom|right|end" />
+            app:layout_anchorGravity="bottom|right|end">
+
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:src="@mipmap/play"
+                android:visibility="visible"
+                app:layout_anchor="@id/main.appbar"
+                app:layout_anchorGravity="right|bottom|end" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/back_to_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:src="@mipmap/up"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+
     </android.support.design.widget.CoordinatorLayout>
 
-</FrameLayout>
+</LinearLayout>
