@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -39,6 +40,8 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmModel;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 import static io.memorylane.Utils.getDateCurrentTimeZone;
 import static io.memorylane.Utils.getDateDiff;
@@ -82,7 +85,15 @@ public class AlbumActivity extends AppCompatActivity {
                                         album.setId(System.nanoTime());
                                         album.setName(input.toString());
 
-                                        List<Asset> assets = getImageAssets();
+                                        RealmResults<Asset> result = bgRealm.where(Asset.class).findAllSorted("createDate", Sort.DESCENDING);
+
+                                        List<Asset> assets;
+                                        if(result.size() > 0) {
+                                            Asset latestAsset = result.get(0);
+                                            assets = getImageAssets(latestAsset.getCreateDate());
+                                        } else {
+                                            assets = getImageAssets(null);
+                                        }
 
                                         int i = 1;
                                         for (; i < assets.size(); i++) {
@@ -95,13 +106,15 @@ public class AlbumActivity extends AppCompatActivity {
                                         // limit size of initial list
                                         // TODO: remove it
                                         i = i < 150 ? i : 150;
+                                        RealmList<Asset> lastTrip;
 
-                                        RealmList<Asset> lastTrip = Utils.deepCopyToRealm(bgRealm, assets.subList(0, i));
+                                        if(assets.size() > 0 && i > 1) {
+                                            lastTrip = Utils.deepCopyToRealm(bgRealm, assets.subList(0, i));
+                                            album.setAssets(lastTrip);
+                                        } else {
+                                            album.setStatDate(new Date(System.currentTimeMillis()));
+                                        }
 
-                                        album.setAssets(lastTrip);
-
-                                        album.setStatDate(lastTrip.get(0).getCreateDate());
-                                        album.setEndDate(lastTrip.get(lastTrip.size()-1).getCreateDate());
                                     }
                                 }, new Realm.Transaction.OnSuccess() {
                                     @Override
@@ -125,10 +138,41 @@ public class AlbumActivity extends AppCompatActivity {
         });
 
         initDatabase(this);
+        updateDatabase();
         initRecycleView();
         initToolbar();
         initPermissions();
     }
+
+    private void updateDatabase() {
+
+        RealmResults<Asset> result = mRealm.where(Asset.class).findAllSorted("createDate", Sort.DESCENDING);
+
+        List<Asset> assets;
+        if(result.size() > 0) {
+            Asset latestAsset = result.get(0);
+            assets = getImageAssets(latestAsset.getCreateDate());
+
+            if(assets != null && assets.size() >0){
+                mRealm.beginTransaction();
+                Album albums = mRealm.where(Album.class).isNull("endDate").findFirst();
+
+                if(albums == null){
+                    RealmResults<Album> results = mRealm.where(Album.class).findAllSorted("endDate", Sort.DESCENDING);
+                    if(results.size() >0 ){
+                        albums = results.get(0);
+                    }
+                }
+
+                if(albums != null) {
+                    albums.getAssets().addAll(0, Utils.deepCopyToRealm(mRealm, assets));
+                }
+
+                mRealm.commitTransaction();
+            }
+        }
+    }
+
 
     private void initDatabase(Context context) {
         RealmConfiguration realmConfig = new RealmConfiguration.Builder(context)
@@ -147,9 +191,6 @@ public class AlbumActivity extends AppCompatActivity {
 
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.INTERNET}, PERMISSIONS_REQUEST_TO_READ_CONTACTS);
         } else {
-            getImageAssets();
-
-
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 
                 if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
@@ -195,7 +236,7 @@ public class AlbumActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_TO_READ_CONTACTS: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getImageAssets();
+                    Log.i("TAG", "persmissions granted");
                 } else {
 
                     // permission denied, boo! Disable the
@@ -209,11 +250,11 @@ public class AlbumActivity extends AppCompatActivity {
         }
     }
 
-    private List<Asset> getImageAssets() {
-        return getImageAssets(this);
+    private List<Asset> getImageAssets(Date lastEvent) {
+        return getImageAssets(this, lastEvent);
     }
 
-    private List<Asset> getImageAssets(Activity activity) {
+    private List<Asset> getImageAssets(Activity activity, Date lastEvent) {
         ArrayList<Asset> assets = new ArrayList<>();
 
         try (Cursor cursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -259,7 +300,18 @@ public class AlbumActivity extends AppCompatActivity {
             }
         });
 
-        return assets;
+
+        if(lastEvent != null) {
+            List<Asset> finalList = new ArrayList<>();
+            for (Asset a : assets) {
+                if (a.getCreateDate().after(lastEvent)) {
+                    finalList.add(a);
+                }
+            }
+            return finalList;
+        } else {
+            return assets;
+        }
     }
 
     private ArrayList<Asset> removeDuplicates(ArrayList<Asset> assets){

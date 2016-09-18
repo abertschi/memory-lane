@@ -1,5 +1,6 @@
 package io.memorylane.dto;
 
+import io.memorylane.Utils;
 import io.memorylane.model.Asset;
 
 /**
@@ -13,7 +14,7 @@ public class PhotoAssetDto extends AssetDto {
 
     public String getSxml() {
         return "<overlay duration=\"3.0\">\n" +
-                "   <image filename=\"" + url + "\">\n" +
+                "   <image filename=\"" + Utils.escapeForXml( url) + "\">\n" +
                 "       <filter type=\"fitAdapter\"></filter>\n" +
                 "   </image>\n" +
                 "   <animator type=\"grow\" growStart=\"-0.3\" growEnd=\"0.0\"/>" +

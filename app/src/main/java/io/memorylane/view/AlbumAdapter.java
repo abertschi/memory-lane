@@ -98,6 +98,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     }
 
     public Bitmap getCoverBitmap(Album album) {
+
+        if(album.getAssets() == null || album.getAssets().size() ==0) {
+            return null;
+        }
+
         String coverPath = "", extension = "";
         do {
             int idx = new Random().nextInt(album.getAssets().size());

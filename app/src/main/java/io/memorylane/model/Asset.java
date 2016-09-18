@@ -20,6 +20,8 @@ public class Asset extends RealmObject {
 
     private Boolean isPicture;
 
+    private Boolean isEnded;
+
     public Asset() {}
 
     public Asset(File file) {
@@ -30,14 +32,12 @@ public class Asset extends RealmObject {
         this.path = this.file.getPath();
         this.createDate = createDate;
         this.isPicture = isPicutre;
+        isEnded = false;
     }
 
     public Asset(Long id, String path, Date createDate, Boolean isPicture) {
+        this(isPicture, path, createDate);
         this.id = id;
-        this.path = path;
-        this.file = new File(path);
-        this.createDate = createDate;
-        this.isPicture = isPicture;
     }
 
     public Date getCreateDate() {

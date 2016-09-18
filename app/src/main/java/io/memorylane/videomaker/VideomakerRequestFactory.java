@@ -1,6 +1,7 @@
 package io.memorylane.videomaker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.memorylane.dto.AssetDto;
@@ -22,6 +23,14 @@ public class VideomakerRequestFactory {
         request.secret = SECRET;
         request.block = BLOCK;
         request.tasks = getTasks();
+        return request;
+    }
+
+    public static VideomakerRequest produce(VideomakerTask tasks) {
+        VideomakerRequest request = new VideomakerRequest();
+        request.secret = SECRET;
+        request.block = BLOCK;
+        request.tasks = Arrays.asList(tasks);
         return request;
     }
 
