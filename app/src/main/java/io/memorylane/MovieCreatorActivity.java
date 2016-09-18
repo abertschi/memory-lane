@@ -34,7 +34,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class MovieCreatorActivity extends AppCompatActivity implements Callback<List<VideomakerResponse>> {
+public class MovieCreatorActivity extends AppCompatActivity {
 
     Realm mRealm;
     private RecyclerView mRecycleView;
@@ -63,53 +63,14 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Asset> assets = mAlbum.getAssets().subList(0, 2);
+                List<Asset> assets = mAlbum.getAssets().subList(0, 10);
 
                 Asset[] assetsArray = new Asset[assets.size()];
                 assets.toArray(assetsArray);
                 new MemoryLaneAsyncTask().execute(assetsArray);
-
-                sendVideomakerRequest();
             }
         });
     }
-
-
-    private void sendVideomakerRequest() {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                .create();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://dragon.stupeflix.com")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        // prepare call in Retrofit 2.0
-        VideomakerApi videomakerApi = retrofit.create(VideomakerApi.class);
-
-        VideomakerRequest request = VideomakerRequestFactory.produce();
-        Call<List<VideomakerResponse>> call = videomakerApi.post(request);
-
-        //asynchronous call
-        call.enqueue(this);
-    }
-
-    @Override
-    public void onResponse(Call<List<VideomakerResponse>> call, Response<List<VideomakerResponse>> response) {
-        Log.i("response ok", "");
-
-        VideomakerResponseResult result = response.body().get(0).result;
-        Log.i("video url", result.export);
-        Log.i("video preview url", result.preview);
-        Log.i("video thumbnail url", result.thumbnail);
-        Log.i("video duration", String.valueOf(result.duration));
-    }
-
-    @Override
-    public void onFailure(Call<List<VideomakerResponse>> call, Throwable t) {
-        Log.i("failure", String.valueOf(t));
-    }
-
 
     private void initRecycleView(List<Asset> assets) {
         mRecycleView = (RecyclerView) findViewById(R.id.assets_grid);

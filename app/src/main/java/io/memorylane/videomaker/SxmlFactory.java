@@ -23,7 +23,7 @@ public class SxmlFactory {
         sb.append("</text>");
 
         for (AssetDto dto : dtos)
-            sb.append(Utils.escapeForXml(dto.getSxml()));
+            sb.append(dto.getSxml());
 
         sb.append("    </sequence>\n");
         sb.append("  </body>\n");
