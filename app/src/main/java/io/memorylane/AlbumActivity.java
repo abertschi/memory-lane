@@ -105,7 +105,7 @@ public class AlbumActivity extends AppCompatActivity {
 
                                         // limit size of initial list
                                         // TODO: remove it
-                                        i = i < 150 ? i : 150;
+                                        i = i < 20 ? i : 20;
                                         RealmList<Asset> lastTrip;
 
                                         if(assets.size() > 0 && i > 1) {

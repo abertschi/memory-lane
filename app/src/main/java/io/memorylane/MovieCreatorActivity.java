@@ -11,12 +11,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import io.memorylane.cloud.CloudController;
 import io.memorylane.cloud.MemoryLaneAsyncTask;
@@ -43,13 +46,15 @@ public class MovieCreatorActivity extends AppCompatActivity {
     private RecyclerView mRecycleView;
     private AssetGridAdapter mGridAdapter;
     private Album mAlbum;
-
+    private ImageView mView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_creator);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        mView = (ImageView) findViewById(R.id.main_backdrop);
+
         setSupportActionBar(toolbar);
 
         mRealm = Realm.getDefaultInstance();
@@ -76,13 +81,18 @@ public class MovieCreatorActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Asset> assets = mAlbum.getAssets().subList(0, 10);
+                List<Asset> assets = mAlbum.getAssets();
 
                 Asset[] assetsArray = new Asset[assets.size()];
                 assets.toArray(assetsArray);
                 new MemoryLaneAsyncTask(MovieCreatorActivity.this).execute(assetsArray);
             }
         });
+
+        Random randomizer = new Random();
+        Glide.with(this)
+                .load(mAlbum.getAssets().get(randomizer.nextInt(mAlbum.getAssets().size())).getPath())
+                .into(mView);
     }
 
     private void initRecycleView(List<Asset> assets) {

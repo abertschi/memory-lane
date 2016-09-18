@@ -55,6 +55,7 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
         super();
         this.activity = activity;
         this.dialog = new ProgressDialog(activity);
+        this.dialog.setCancelable(false);
     }
 
     @Override
