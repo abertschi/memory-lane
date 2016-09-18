@@ -2,6 +2,9 @@ package io.memorylane.cloud;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.EditText;
@@ -43,15 +46,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
 
     CloudController cloud;
-    Activity activity;
 
-    public MemoryLaneAsyncTask() {
+    public Activity activity;
+    public ProgressDialog dialog;
+
+
+    public MemoryLaneAsyncTask(Activity activity) {
         super();
+        this.activity = activity;
+        this.dialog = new ProgressDialog(activity);
     }
 
     @Override
     protected void onPreExecute() {
         cloud = new CloudController();
+        this.dialog.setMessage("Processing your data");
+        this.dialog.show();
     }
 
     @Override
@@ -118,6 +128,9 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
             List<VideomakerResponse> body = response.body();
             VideomakerResponseResult result = body.get(0).result;
 
+            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(result.export)));
+            Log.i("Video", "Video Playing....");
+
             Log.i("video url", result.export);
 
             return result;
@@ -148,5 +161,7 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
+        if (dialog != null && dialog.isShowing())
+            dialog.dismiss();
     }
 }

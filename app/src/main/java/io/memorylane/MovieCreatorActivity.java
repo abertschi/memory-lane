@@ -67,7 +67,7 @@ public class MovieCreatorActivity extends AppCompatActivity {
 
                 Asset[] assetsArray = new Asset[assets.size()];
                 assets.toArray(assetsArray);
-                new MemoryLaneAsyncTask().execute(assetsArray);
+                new MemoryLaneAsyncTask(MovieCreatorActivity.this).execute(assetsArray);
             }
         });
     }
