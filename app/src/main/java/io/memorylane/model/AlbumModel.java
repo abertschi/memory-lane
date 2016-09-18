@@ -1,6 +1,7 @@
 package io.memorylane.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
@@ -19,12 +20,13 @@ public class AlbumModel {
     }
 
     public List<Album> getAlbums() {
+        ArrayList<Album> albums = new ArrayList<>();
         RealmResults<Album> result = Realm.getDefaultInstance().where(Album.class).findAll();
         Album a = new Album();
-        a.setName("Switzerland");
-        result.add(a);
-        result.add(new Album().setName("Myself everyday"));
-        return result.subList(0, result.size());
+       
+        result.subList(0, result.size());
+        albums.addAll(result);
+        return albums;
     }
 
     public AlbumModel setAlbums(List<Album> albums) {

@@ -108,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:src="@mipmap/button"
+            android:src="@mipmap/play"
             app:layout_anchor="@id/main.appbar"
             android:id="@+id/fab"
             android:visibility="visible"
