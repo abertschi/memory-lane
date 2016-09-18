@@ -1,5 +1,6 @@
 package io.memorylane;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -105,7 +106,6 @@ public class MovieCreatorActivity extends AppCompatActivity {
                 .load(mAlbum.getAssets().get(randomizer.nextInt(mAlbum.getAssets().size())).getPath())
                 .into(mView);
         if(mAlbum.getAssets().size() > 0) {
-            Random randomizer = new Random();
             Glide.with(this)
                     .load(mAlbum.getAssets().get(randomizer.nextInt(mAlbum.getAssets().size())).getPath())
                     .into(mView);
