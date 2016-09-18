@@ -14,7 +14,7 @@ import io.memorylane.dto.VideoAssetDto;
  */
 public class VideomakerRequestFactory {
 
-    private final static String SECRET = "7JW4XXBGVZBNXLMLRPCN44PTBE";
+    private final static String SECRET = "DEQTPZTDFVGEXACOM7DLES7TFE";
     private final static String TASK_NAME = "video.create";
     private final static boolean BLOCK = true;
 

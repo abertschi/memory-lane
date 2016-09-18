@@ -60,7 +60,7 @@ public class AssetGridAdapter extends RecyclerView.Adapter<AssetGridAdapter.Asse
                 .with(_mActivity)
                 .load(asset.getPath())
                 .centerCrop()
-                .thumbnail(.05f)
+                .thumbnail(.2f)
                 .placeholder(R.mipmap.spinner)
                 .crossFade()
                 .into(holder.imageView);
