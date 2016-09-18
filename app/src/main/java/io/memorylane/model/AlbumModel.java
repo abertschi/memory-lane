@@ -23,7 +23,7 @@ public class AlbumModel {
         ArrayList<Album> albums = new ArrayList<>();
         RealmResults<Album> result = Realm.getDefaultInstance().where(Album.class).findAll();
         Album a = new Album();
-       
+
         result.subList(0, result.size());
         albums.addAll(result);
         return albums;
