@@ -88,7 +88,7 @@ public class AlbumActivity extends AppCompatActivity {
                                         RealmResults<Asset> result = bgRealm.where(Asset.class).findAllSorted("createDate", Sort.DESCENDING);
 
                                         List<Asset> assets;
-                                        if(result.size() > 0) {
+                                        if (result.size() > 0) {
                                             Asset latestAsset = result.get(0);
                                             assets = getImageAssets(latestAsset.getCreateDate());
                                         } else {
@@ -98,17 +98,17 @@ public class AlbumActivity extends AppCompatActivity {
                                         int i = 1;
                                         for (; i < assets.size(); i++) {
                                             long timeDiff = getDateDiff(assets.get(i).getCreateDate(), assets.get(i - 1).getCreateDate(), TimeUnit.HOURS);
-                                            if(timeDiff > 36){
+                                            if (timeDiff > 36) {
                                                 break;
                                             }
                                         }
 
                                         // limit size of initial list
                                         // TODO: remove it
-                                        i = i < 150 ? i : 150;
+                                        i = i < 20 ? i : 20;
                                         RealmList<Asset> lastTrip;
 
-                                        if(assets.size() > 0 && i > 1) {
+                                        if (assets.size() > 0 && i > 1) {
                                             lastTrip = Utils.deepCopyToRealm(bgRealm, assets.subList(0, i));
                                             album.setAssets(lastTrip);
                                         } else {
@@ -149,22 +149,22 @@ public class AlbumActivity extends AppCompatActivity {
         RealmResults<Asset> result = mRealm.where(Asset.class).findAllSorted("createDate", Sort.DESCENDING);
 
         List<Asset> assets;
-        if(result.size() > 0) {
+        if (result.size() > 0) {
             Asset latestAsset = result.get(0);
             assets = getImageAssets(latestAsset.getCreateDate());
 
-            if(assets != null && assets.size() >0){
+            if (assets != null && assets.size() > 0) {
                 mRealm.beginTransaction();
                 Album albums = mRealm.where(Album.class).isNull("endDate").findFirst();
 
-                if(albums == null){
+                if (albums == null) {
                     RealmResults<Album> results = mRealm.where(Album.class).findAllSorted("endDate", Sort.DESCENDING);
-                    if(results.size() >0 ){
+                    if (results.size() > 0) {
                         albums = results.get(0);
                     }
                 }
 
-                if(albums != null) {
+                if (albums != null) {
                     albums.getAssets().addAll(0, Utils.deepCopyToRealm(mRealm, assets));
                 }
 
@@ -274,11 +274,11 @@ public class AlbumActivity extends AppCompatActivity {
             }
         }
 
-        try(Cursor cursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        try (Cursor cursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 new String[]{MediaStore.Video.VideoColumns.DATA, MediaStore.Video.VideoColumns.DATE_ADDED},
                 null,
                 null,
-                null)){
+                null)) {
 
             if (cursor != null) {
                 int data = cursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
@@ -301,7 +301,7 @@ public class AlbumActivity extends AppCompatActivity {
         });
 
 
-        if(lastEvent != null) {
+        if (lastEvent != null) {
             List<Asset> finalList = new ArrayList<>();
             for (Asset a : assets) {
                 if (a.getCreateDate().after(lastEvent)) {
@@ -314,7 +314,7 @@ public class AlbumActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<Asset> removeDuplicates(ArrayList<Asset> assets){
+    private ArrayList<Asset> removeDuplicates(ArrayList<Asset> assets) {
         Set<Asset> s = new LinkedHashSet<>(assets);
         ArrayList<Asset> list = new ArrayList<>();
         list.addAll(s);

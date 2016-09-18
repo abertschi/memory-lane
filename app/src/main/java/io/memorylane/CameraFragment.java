@@ -627,7 +627,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     }
 
     public void closeCameras() {
-        mCameraOpenCloseLock1.tryAcquire(2500);
         closeCamera1();
         closeCamera2();
     }

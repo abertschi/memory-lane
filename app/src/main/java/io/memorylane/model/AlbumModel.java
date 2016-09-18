@@ -20,6 +20,10 @@ public class AlbumModel {
 
     public List<Album> getAlbums() {
         RealmResults<Album> result = Realm.getDefaultInstance().where(Album.class).findAll();
+        Album a = new Album();
+        a.setName("Switzerland");
+        result.add(a);
+        result.add(new Album().setName("Myself everyday"));
         return result.subList(0, result.size());
     }
 
