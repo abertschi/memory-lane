@@ -871,6 +871,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
         mNextVideoAbsolutePath = null;
         closeCameras();
+        getActivity().finish();
         //startCameras();
     }
 
