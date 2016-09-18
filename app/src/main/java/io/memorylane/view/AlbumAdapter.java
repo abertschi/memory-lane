@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -53,7 +54,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         Album album = mModel.getAlbums().get(position);
         Log.i("TAG", album.getName());
         holder.mLabel.setText(album.getName());
-        holder.mImage.setImageBitmap(getCoverBitmap(album));
+        if(album.getAssets().size() > 0) {
+            holder.mImage.setImageBitmap(getCoverBitmap(album));
+        } else {
+            holder.mEmptyLabel.setText("Empty Album!");
+        }
     }
 
     @Override
@@ -65,18 +70,24 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
         private TextView mLabel;
         private ImageView mImage;
+        private TextView mEmptyLabel;
 
         public AlbumViewHolder(final View parent) {
             super(parent);
             this.setIsRecyclable(false);
             mLabel = (TextView) parent.findViewById(R.id.album_card_text);
             mImage = (ImageView) parent.findViewById(R.id.album_card_image);
+            mEmptyLabel = (TextView) parent.findViewById(R.id.empty_card_test);
 
             parent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Bundle bundle = ActivityOptionsCompat.makeClipRevealAnimation(v, (int) parent.getX(), (int) parent.getY(), 0, 0).toBundle();
 
+                    if(mModel.getAlbums().get(getAdapterPosition()).getAssets().size() == 0) {
+                        Toast.makeText(_mActivity, "Album is empty!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Intent intent = new Intent(v.getContext(), MovieCreatorActivity.class);
                     Long id = mModel.getAlbums().get(getAdapterPosition()).getId();
                     intent.putExtra("AlbumId", id);
