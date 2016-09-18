@@ -840,10 +840,8 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     }
 
     private void stopRecordingVideo1() {
-        // UI
-//        mIsRecordingVideo = false;
-//        mButtonVideo.setText(R.string.record);
-        // Stop recording
+
+        try {
         if (mMediaRecorder1 != null) {
 
             mMediaRecorder1.stop();
@@ -873,6 +871,11 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         closeCameras();
         getActivity().finish();
         //startCameras();
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), "Oh dear: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+          getActivity().finish();
+        }
     }
 
 
