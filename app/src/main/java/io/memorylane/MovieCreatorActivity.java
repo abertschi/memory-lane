@@ -1,9 +1,12 @@
 package io.memorylane;
 
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -46,19 +49,29 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_creator);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
+
         mRealm = Realm.getDefaultInstance();
 
+
         Long albumId = null;
-        if(getIntent().getExtras() != null) {
+        if (getIntent().getExtras() != null) {
             albumId = getIntent().getExtras().getLong("AlbumId");
             mAlbum = Utils.deepCopy(mRealm.where(Album.class).equalTo("id", albumId).findFirst());
+
+            CollapsingToolbarLayout ctl = (CollapsingToolbarLayout) findViewById(R.id.main_collapsing);
+            ctl.setTitle(mAlbum.getName());
+
+
+
+            toolbar.setTitle(mAlbum.getName());
 
             initRecycleView(mAlbum.getAssets());
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.VISIBLE);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +126,8 @@ public class MovieCreatorActivity extends AppCompatActivity implements Callback<
 
     private void initRecycleView(List<Asset> assets) {
         mRecycleView = (RecyclerView) findViewById(R.id.assets_grid);
-        mRecycleView.setLayoutManager(new GridLayoutManager(this, 2));
+        mRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        mRecycleView.setNestedScrollingEnabled(false);
         AssetsModel model = new AssetsModel(assets);
         mGridAdapter = new AssetGridAdapter(this, model);
         mRecycleView.setAdapter(mGridAdapter);

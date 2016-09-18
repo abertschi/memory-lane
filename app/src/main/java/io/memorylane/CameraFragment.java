@@ -84,9 +84,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
     private Handler mBackgroundHandler1;
     private HandlerThread mBackgroundThread1;
-    //
-    private Handler mBackgroundHandler2;
-    private HandlerThread mBackgroundThread2;
 
     private CaptureRequest.Builder mPreviewBuilder1;
     private Size mVideoSize1;
@@ -100,6 +97,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
     private final String RECORDING_TAG_ON = "on";
     private final String RECORDING_TAG_OFF = "off";
+
     private String mNextVideoAbsolutePath;
     private Surface mRecorderSurface1;
 
@@ -136,9 +134,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     mRecordButton.setImageResource(R.mipmap.button_rec);
                     mRecordButton.setTag(RECORDING_TAG_ON);
                     startRecordingVideo();
-                    //mRecordButton.animate().alpha()
-                    //mAddAlbumButton.animate().translationY(mAddAlbumButton.getHeight() * 2);
-
                 } else {
                     stopRecordingVideo1();
                     mRecordButton.setImageResource(R.mipmap.button);
@@ -163,12 +158,10 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         return mPictureInPictureView;
     }
 
-    // todo: switch views on double press
     @Override
     public void onPictureInPictureSwitched() {
         Log.i(TAG, "onPictureInPictureSwitched from fragment");
         _mCameraScreenConfiguration = !_mCameraScreenConfiguration;
-
 //        closeCameras();
 //        startCameras();
     }
@@ -176,10 +169,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     public void startCameras() {
         openCamera1(mTextureView1.getWidth(), mTextureView1.getWidth());
         openCamera2(mTextureView2.getHeight(), mTextureView2.getWidth());
-    }
-
-    private void resetCameras() {
-        AlbumContentActivity.hackReset();
     }
 
     private enum Camera {
@@ -194,7 +183,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
     private boolean _mCameraScreenConfiguration = true;
 
-
     private CameraDevice.StateCallback mStateCallBackCamera1 = new CameraDevice.StateCallback() {
 
         @Override
@@ -204,7 +192,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             startPreview(Camera.CAMERA_1);
             mCameraOpenCloseLock1.release();
             if (mTextureView1 != null) {
-                //configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
+                configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
             }
         }
 
@@ -235,9 +223,8 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             Log.i(TAG, "StateCallback 2 camera opened");
             mCameraDevice2 = camera;
             startPreview(Camera.CAMERA_2);
-
             if (mTextureView2 != null) {
-                //configureTransform(mTextureView2.getWidth(), mTextureView2.getHeight(), mTextureView2, mPreviewSize2);
+                configureTransform(mTextureView2.getWidth(), mTextureView2.getHeight(), mTextureView2, mPreviewSize2);
             }
         }
 
@@ -258,7 +245,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
 
         }
     };
-
 
     private TextureView.SurfaceTextureListener mSurfaceTexture1Listener = new TextureView.SurfaceTextureListener() {
 
@@ -349,15 +335,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             CameraManager manager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
 
             Log.d(TAG, "tryAcquire");
-            try {
-                if (!mCameraOpenCloseLock1.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
-                    //throw new RuntimeException("Time out waiting to lock camera opening.");
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
             String[] cameraIdList = manager.getCameraIdList();
 
             if (cameraIdList.length == 0) {
@@ -366,7 +343,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             for (String s : cameraIdList) {
                 Log.i(TAG, "Camera found: " + s);
             }
-
 
             String cameraId;
             if (cameraType == CameraType.BACK_CAMERA) {
@@ -382,6 +358,14 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             switch (camera) {
                 case CAMERA_1: // front camera
+                    try {
+                        if (!mCameraOpenCloseLock1.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+                            throw new RuntimeException("Time out waiting to lock camera opening.");
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     mVideoSize1 = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
                     mPreviewSize1 = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), height, width, mVideoSize1);
                     mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
@@ -389,6 +373,16 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     mTextureView1.setAspectRatio(mTextureView1.getWidth(), mTextureView1.getHeight());
                     configureTransform(mTextureView1.getWidth(), mTextureView1.getHeight(), mTextureView1, mPreviewSize1);
                     mMediaRecorder1 = new MediaRecorder();
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
                     manager.openCamera(cameraId, mStateCallBackCamera1, null);
 
                     break;
@@ -401,6 +395,16 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     configureTransform(mTextureView2.getWidth(), mTextureView2.getHeight(), mTextureView2, mPreviewSize2);
                     mMediaRecorder2 = new MediaRecorder();
                     manager.openCamera(cameraId, mStateCallBackCamera2, null);
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
                     break;
                 default:
                     throw new RuntimeException("No matching camera");
@@ -411,20 +415,8 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         }
     }
 
-    /**
-     * Configures the necessary {@link android.graphics.Matrix} transformation to `mTextureView`.
-     * This method should not to be called until the camera preview size is determined in
-     * openCamera, or until the size of `mTextureView` is fixed.
-     *
-     * @param viewWidth  The width of `mTextureView`
-     * @param viewHeight The height of `mTextureView`
-     */
     private void configureTransform(int viewWidth, int viewHeight, AutoFitTextureView textureView, Size previewSize) {
         textureView.updateViewSize(viewWidth, viewHeight);
-        Activity activity = getActivity();
-        if (null == textureView || null == previewSize || null == activity) {
-            return;
-        }
     }
 
     private void startPreview(final Camera camera) {
@@ -438,7 +430,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                     SurfaceTexture textureCamera1 = mTextureView1.getSurfaceTexture();
                     textureCamera1.setDefaultBufferSize(mTextureView1.getHeight(), mTextureView1.getWidth());
                     mPreviewBuilder1 = mCameraDevice1.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-                    mTextureView1.setAspectRatio(mPreviewSize1.getHeight(), mPreviewSize1.getWidth());
+                    mTextureView1.setAspectRatio(mTextureView1.getWidth(), mTextureView1.getHeight());
                     mTextureView1.updateViewSize(mTextureView1.getHeight(), mTextureView1.getWidth());
 
                     Surface surfaceCamera1 = new Surface(textureCamera1);
@@ -462,7 +454,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                         return;
                     }
                     closePreviewSession2();
-
                     SurfaceTexture textureCamera2 = mTextureView2.getSurfaceTexture();
                     textureCamera2.setDefaultBufferSize(mTextureView2.getWidth(), mTextureView2.getHeight());
                     mPreviewBuilder2 = mCameraDevice2.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
@@ -523,7 +514,7 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             }
             previewBuilder = mPreviewBuilder2;
             previewSession = mPreviewSession2;
-            backgroundHandler = mBackgroundHandler2;
+            backgroundHandler = mBackgroundHandler1;
         }
 
         setUpCaptureRequestBuilder(previewBuilder);
@@ -548,19 +539,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             mPreviewSession2.close();
             mPreviewSession2 = null;
         }
-    }
-
-    private void requestPermissions(String[] videoPermissions) {
-        FragmentCompat.requestPermissions(this, videoPermissions, REQUEST_VIDEO_PERMISSIONS);
-    }
-
-    private boolean hasPermissionGranted(String[] permissions) {
-        for (String p : permissions) {
-            if (ActivityCompat.checkSelfPermission(getActivity(), p) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
     }
 
 
@@ -613,7 +591,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
         }
     }
 
-
     private static class CompareSizesByArea implements java.util.Comparator<Size> {
         @Override
         public int compare(Size lhs, Size rhs) {
@@ -621,17 +598,12 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
             return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
                     (long) rhs.getWidth() * rhs.getHeight());
         }
-
     }
 
     private void startBackgroundThread() {
         mBackgroundThread1 = new HandlerThread("CameraBackground1");
         mBackgroundThread1.start();
         mBackgroundHandler1 = new Handler(mBackgroundThread1.getLooper());
-
-        mBackgroundThread2 = new HandlerThread("CameraBackground2");
-        mBackgroundThread2.start();
-        mBackgroundHandler2 = new Handler(mBackgroundThread2.getLooper());
 
     }
 
@@ -649,18 +621,6 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
                 e.printStackTrace();
             }
         }
-
-        if (mBackgroundThread2 != null) {
-            mBackgroundThread2.quitSafely();
-            try {
-                mBackgroundThread2.join();
-                mBackgroundThread2 = null;
-                mBackgroundHandler2 = null;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
     public void closeCameras() {
@@ -671,13 +631,11 @@ public class CameraFragment extends Fragment implements PictureInPictureView.Swi
     private void closeCamera1() {
         try {
             mCameraOpenCloseLock1.acquire();
-
             closePreviewSession1();
             if (null != mCameraDevice1) {
                 mCameraDevice1.close();
                 mCameraDevice1 = null;
             }
-
             if (null != mMediaRecorder1) {
                 mMediaRecorder1.release();
                 mMediaRecorder1 = null;

@@ -44,17 +44,6 @@ public class AlbumContentActivity extends AppCompatActivity implements PictureIn
         t.commit();
     }
 
-    private void _hackReset() {
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(mBrowseFragment);
-        ft.attach(mBrowseFragment);
-        ft.commit();
-    }
-
-    public static void hackReset() {
-        _instance._hackReset();
-    }
-
 
     @Override
     protected void onResume() {
