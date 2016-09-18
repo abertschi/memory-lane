@@ -1,4 +1,4 @@
-# memory-lane 🎬
+# MemoryLane 🎬
 
 Video is the way to tell stories in this world.
 Capture life stories with MemoryLane and share them with friends.
