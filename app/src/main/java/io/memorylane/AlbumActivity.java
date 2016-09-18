@@ -155,17 +155,14 @@ public class AlbumActivity extends AppCompatActivity {
 
             if (assets != null && assets.size() > 0) {
                 mRealm.beginTransaction();
-                Album albums = mRealm.where(Album.class).isNull("endDate").findFirst();
+                Album albums;
 
-                if (albums == null) {
-                    RealmResults<Album> results = mRealm.where(Album.class).findAllSorted("endDate", Sort.DESCENDING);
-                    if (results.size() > 0) {
-                        albums = results.get(0);
+                RealmResults<Album> results = mRealm.where(Album.class).findAllSorted("statDate", Sort.DESCENDING);
+                if(results.size() >0 ){
+                    albums = results.get(0);
+                    if(albums != null) {
+                        albums.getAssets().addAll(0, Utils.deepCopyToRealm(mRealm, assets));
                     }
-                }
-
-                if (albums != null) {
-                    albums.getAssets().addAll(0, Utils.deepCopyToRealm(mRealm, assets));
                 }
 
                 mRealm.commitTransaction();

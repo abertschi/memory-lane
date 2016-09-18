@@ -89,10 +89,12 @@ public class MovieCreatorActivity extends AppCompatActivity {
             }
         });
 
-        Random randomizer = new Random();
-        Glide.with(this)
-                .load(mAlbum.getAssets().get(randomizer.nextInt(mAlbum.getAssets().size())).getPath())
-                .into(mView);
+        if(mAlbum.getAssets().size() > 0) {
+            Random randomizer = new Random();
+            Glide.with(this)
+                    .load(mAlbum.getAssets().get(randomizer.nextInt(mAlbum.getAssets().size())).getPath())
+                    .into(mView);
+        }
     }
 
     private void initRecycleView(List<Asset> assets) {

@@ -109,7 +109,7 @@ public class MemoryLaneAsyncTask extends AsyncTask<Asset, Void, Boolean> {
         Realm realm = Realm.getDefaultInstance();
         for (Map.Entry<Asset, String> entry : uploadedAssets.entrySet()) {
             realm.beginTransaction();
-            Asset asset = realm.where(Asset.class).equalTo("id", entry.getKey().getId()).findFirst();
+            Asset asset = realm.where(Asset.class).equalTo("path", entry.getKey().getPath()).findFirst();
             if(asset != null){
                 asset.setUploadedFile(entry.getValue());
             }
